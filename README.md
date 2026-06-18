@@ -32,4 +32,6 @@ Alternatively, if you have installed the package locally with vignettes
 compiled, you can launch the tutorial inside your local R session by
 running:
 
-\`\`\`r vignette(“quickstart-breeding-sim”, package = “mateR2”)
+``` r
+vignette("quickstart-breeding-sim", package = "mateR2")
+```

@@ -37,3 +37,4 @@ Alternatively, if you have installed the package locally with vignettes compiled
 
 ```r
 vignette("quickstart-breeding-sim", package = "mateR2")
+```
