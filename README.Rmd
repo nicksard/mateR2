@@ -1,0 +1,41 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# mateR2
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of mateR2 is to provide a statistically robust, MCMC-driven simulation engine for generating realistic breeding matrices and population pedigrees under precise demographic constraints. It is specifically designed to handle the skewed, "sweepstakes" reproductive systems common in wild aquatic populations (e.g., salmon and sturgeon) to evaluate the performance of pedigree reconstruction frameworks.
+
+## Installation
+
+You can install the development version of mateR2 directly from GitHub with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("nicksard/mateR2")
+```
+
+## Getting Started
+
+To explore the core capabilities of the package—including target selection, running the MCMC sampler, edge shuffling, and sub-sampling simulated offspring metrics—please consult the comprehensive vignette built into the package.
+
+Once installed, you can launch the step-by-step tutorial directly in your browser by running:
+
+```{r vignette_quick_start}
+vignette("quick-start-workflow", package = "mateR2")
+```
+
