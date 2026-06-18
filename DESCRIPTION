@@ -21,3 +21,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/nicksard/mateR2
+BugReports: https://github.com/nicksard/mateR2/issues
