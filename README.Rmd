@@ -38,4 +38,3 @@ Once installed, you can launch the step-by-step tutorial directly in your browse
 ```{r vignette_quick_start}
 vignette("quick-start-workflow", package = "mateR2")
 ```
-
