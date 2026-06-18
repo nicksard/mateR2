@@ -31,10 +31,9 @@ devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 
 ## Getting Started
 
-To explore the core capabilities of the package—including target selection, running the MCMC sampler, edge shuffling, and sub-sampling simulated offspring metrics—please consult the comprehensive vignette built into the package.
+👉 **[Read the Quick-Start Workflow Guide Here](vignettes/quickstart-breeding-sim.md)**
 
-Once installed, you can launch the step-by-step tutorial directly in your browser by running:
+Alternatively, if you have installed the package locally with vignettes compiled, you can launch the tutorial inside your local R session by running:
 
-``` r
-vignette("quick-start-workflow", package = "mateR2")
-```
+```r
+vignette("quickstart-breeding-sim", package = "mateR2")
