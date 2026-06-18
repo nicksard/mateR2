@@ -1,0 +1,35 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# mateR2
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of mateR2 is to provide a statistically robust, MCMC-driven
+simulation engine for generating realistic breeding matrices and
+population pedigrees under precise demographic constraints. It is
+specifically designed to handle the skewed, “sweepstakes” reproductive
+systems common in wild aquatic populations (e.g., salmon and sturgeon)
+to evaluate the performance of pedigree reconstruction frameworks.
+
+## Installation
+
+You can install the development version of mateR2 directly from GitHub
+with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
+```
+
+## Getting Started
+
+👉 **[Read the Quick-Start Workflow Guide
+Here](vignettes/quickstart-breeding-sim.md)**
+
+Alternatively, if you have installed the package locally with vignettes
+compiled, you can launch the tutorial inside your local R session by
+running:
+
+\`\`\`r vignette(“quickstart-breeding-sim”, package = “mateR2”)
