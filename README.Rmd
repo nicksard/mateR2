@@ -26,7 +26,7 @@ You can install the development version of mateR2 directly from GitHub with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("nicksard/mateR2")
+devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 ```
 
 ## Getting Started
@@ -35,6 +35,6 @@ To explore the core capabilities of the package—including target selection, ru
 
 Once installed, you can launch the step-by-step tutorial directly in your browser by running:
 
-```{r vignette_quick_start}
+``` r
 vignette("quick-start-workflow", package = "mateR2")
 ```
