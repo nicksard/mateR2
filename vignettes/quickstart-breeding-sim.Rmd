@@ -1,6 +1,6 @@
 ---
 title: "Quickstart: Simulating a Mating Network"
-output: rmarkdown::html_vignette
+output: github_document
 vignette: >
   %\VignetteIndexEntry{Quickstart: Simulating a Mating Network}
   %\VignetteEngine{knitr::rmarkdown}
