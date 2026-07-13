@@ -19,7 +19,7 @@ A data frame containing the total counts of sibling pairs
 \description{
 Analyzes a realized breeding matrix to calculate the exact
 number of full-sibling (FS), maternal half-sibling (MHS), and paternal
-half-sibling (PHS) pairwise relationships. Also returns maximum family sizes.
+half-sibling (PHS) dyads. Also returns maximum family sizes.
 This is critical for evaluating the joint-likelihood configuration space
 used by pedigree reconstruction software like COLONY.
 }
