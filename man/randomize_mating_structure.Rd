@@ -2,32 +2,43 @@
 % Please edit documentation in R/randomize_mating_structure_helper.R
 \name{randomize_mating_structure}
 \alias{randomize_mating_structure}
-\title{Randomize a Breeding Matrix While Preserving Mating Degrees}
+\title{Randomize a Breeding Matrix via Bipartite Edge-Swapping}
 \usage{
-randomize_mating_structure(binary_IIM, SPE_target)
+randomize_mating_structure(binary_IIM, I = 1, C = 10)
 }
 \arguments{
 \item{binary_IIM}{A binary Individual-by-Individual Matrix (IIM) where '1's
 indicate a mating event. This matrix should be the output of
 \code{mp_table_to_matrix()}.}
 
-\item{SPE_target}{The target number of swaps per edge (SPE) to perform. A
-higher value (e.g., 100) will lead to a more thoroughly randomized matrix.}
+\item{I}{A numeric mixing intensity parameter bounded between 0 and 1.
+At \code{I = 0}, the matrix retains its highly modular, isolated initial state.
+At \code{I = 1}, the matrix reaches its maximum-entropy ceiling (panmixia).
+Default is 1.0.}
+
+\item{C}{A fixed internal scaling constant defining the panmictic
+upper bound of edge swaps relative to the mixing time E*ln(E). Default is 10.}
 }
 \value{
 A new, binary IIM that is a randomized version of the input, with
-identical row and column sums (i.e., preserved degrees).
+identical row and column sums, and structurally randomized spatial indexing.
 }
 \description{
-This function implements the edge-swapping (or switching) algorithm
-to randomize the connections in a binary breeding matrix. It rigorously
-preserves the number of mates for every individual (the degree sequence),
-while creating a more fluid, panmictic population structure.
+Implements a joint-degree-preserving bipartite randomization routine
+(Curveball algorithm) to rewire the connections in a binary breeding matrix.
+This function controls the topological entropy of the network while
+rigorously preserving the exact number of mates for every individual
+(the demographic marginal totals).
 }
 \examples{
 \dontrun{
-# Example: a simple 2x2 block matrix
+# Example: a simple 4x4 block matrix
 example_mat <- matrix(c(1,1,0,0, 1,1,0,0, 0,0,1,1, 0,0,1,1), nrow = 4, ncol = 4)
-randomized_mat <- randomize_mating_structure(example_mat, SPE_target = 100)
+
+# Maximum randomization (Uniform microcanonical configuration)
+randomized_mat <- randomize_mating_structure(example_mat, I = 1.0)
+
+# Minimum randomization (Preserves block-diagonals, shuffles IDs only)
+baseline_mat <- randomize_mating_structure(example_mat, I = 0.0)
 }
 }
