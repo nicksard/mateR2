@@ -47,8 +47,9 @@ A larger negative value results in a higher penalty.}
 
 \item{thin}{The thinning interval for collecting samples from the MCMC chain.}
 
-\item{initial_method}{A character string "simple" to use the default 1:1
-initialization, or a numeric vector representing a custom starting state.}
+\item{initial_method}{A character string ("auto") to dynamically calculate the
+optimal starting state based on targets, or a numeric vector representing a
+custom starting state of block counts.}
 
 \item{seed}{An optional seed for the random number generator to ensure
 reproducibility.}

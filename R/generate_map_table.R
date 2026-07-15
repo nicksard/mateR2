@@ -16,8 +16,9 @@
 #' @param n_iter The total number of iterations for the MCMC sampler.
 #' @param burn_in The number of initial iterations to discard before sampling begins.
 #' @param thin The thinning interval for collecting samples from the MCMC chain.
-#' @param initial_method A character string "simple" to use the default 1:1
-#'   initialization, or a numeric vector representing a custom starting state.
+#' @param initial_method A character string ("auto") to dynamically calculate the
+#'   optimal starting state based on targets, or a numeric vector representing a
+#'   custom starting state of block counts.
 #' @param seed An optional seed for the random number generator to ensure
 #'   reproducibility.
 #' @return A list containing the MAP estimate table, the summary statistics
@@ -37,11 +38,13 @@ generate_map_table <- function(
   print("--- Setting up MCMC ---")
   config_info <- create_config_info(max_males_per_female, max_females_per_male)
 
-  if (is.character(initial_method) && initial_method == "simple") {
+  # THE "AUTO" VS "CUSTOM" LOGIC
+  if (is.character(initial_method) && initial_method == "auto") {
     initial_counts <- create_initial_counts(config_info, Np_target, sr_target)
+    print("Using automatically generated 'Warm Start' based on target Sex Ratio.")
   } else if (is.numeric(initial_method) && length(initial_method) == nrow(config_info)){
     initial_counts <- initial_method
-    print("Using provided initial_counts vector.")
+    print("Using user-provided custom initial_counts vector.")
   } else { stop("Invalid initial_method provided.") }
 
   target_values <- list(Np_target = Np_target, sr_target = sr_target, mean_mates_target = mean_mates_target)
@@ -84,9 +87,13 @@ generate_map_table <- function(
 
         Nm <- sum(males_vec * Counts); Nf <- sum(females_vec * Counts)
         Np_real <- Nm + Nf; sr_real <- ifelse(Nf > 0, Nm / Nf, Inf)
-        Total_Matings <- sum(males_vec * females_vec * Counts)
-        Overall_Mean_Mates_actual <- ifelse(Np_real > 0, (2 * Total_Matings) / Np_real, 0)
 
+        Total_Matings <- sum(males_vec * females_vec * Counts)
+
+        # --- FIXED BIOLOGICAL MEAN MATES ALGEBRA ---
+        male_mean_mates <- ifelse(Nm > 0, Total_Matings / Nm, 0)
+        female_mean_mates <- ifelse(Nf > 0, Total_Matings / Nf, 0)
+        Overall_Mean_Mates_actual <- (male_mean_mates + female_mean_mates) / 2
 
         Np_score <- calculate_closeness_score(Np_real, Np_target)
         sr_score <- calculate_closeness_score(sr_real, sr_target)
@@ -120,7 +127,11 @@ generate_map_table <- function(
       final_Np <- final_Nm + final_Nf
       final_SR <- ifelse(final_Nf > 0, final_Nm / final_Nf, Inf)
       final_TM <- sum(map_table$Males * map_table$Females * map_table$MAP_Count)
-      final_MM <- ifelse(final_Np > 0, (2 * final_TM) / final_Np, 0)
+
+      # --- FIXED BIOLOGICAL MEAN MATES ALGEBRA (MAP EXPORT) ---
+      final_male_mm <- ifelse(final_Nm > 0, final_TM / final_Nm, 0)
+      final_female_mm <- ifelse(final_Nf > 0, final_TM / final_Nf, 0)
+      final_MM <- (final_male_mm + final_female_mm) / 2
 
       map_stats <- list(Np = final_Np, SR = final_SR, MeanMates = final_MM,
                         MaxLogProb = best_log_prob)

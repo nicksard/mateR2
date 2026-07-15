@@ -20,9 +20,11 @@ A numeric vector representing the initial count of each mating
 configuration type.
 }
 \description{
-This function generates an initial counts vector, primarily
-composed of 1:1 mating pairs, to serve as a starting point for the MCMC
-sampler. This is a crucial first step for the Metropolis algorithm.
+This function generates an initial counts vector to serve as a
+"warm start" for the MCMC sampler. It dynamically selects the mating
+block configuration that best approximates the target sex ratio and
+populates the initial state to meet the target population size.
+This is a crucial first step for the Metropolis algorithm.
 }
 \examples{
 # Create a sample config table and an initial counts vector
