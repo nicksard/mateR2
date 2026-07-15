@@ -75,7 +75,7 @@ using namespace Rcpp;
 
    double Np_real = Nm + Nf;
    double sr_real = (Nf > 0) ? (Nm / Nf) : R_PosInf;
-   double Overall_Mean_Mates_actual = (Np_real > 0) ? (Total_Matings / Np_real) : 0.0;
+   double Overall_Mean_Mates_actual = (Np_real > 0) ? ((2.0 * Total_Matings) / Np_real) : 0.0;
 
    // Calculate individual scores
    double Np_score = cpp_closeness_score(Np_real, Np_target);
