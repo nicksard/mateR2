@@ -17,7 +17,7 @@ generate_map_table(
   n_iter = 2e+05,
   burn_in = 20000,
   thin = 20,
-  initial_method = "simple",
+  initial_method = "auto",
   seed = NULL
 )
 }

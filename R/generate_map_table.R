@@ -21,8 +21,7 @@
 #'   custom starting state of block counts.
 #' @param seed An optional seed for the random number generator to ensure
 #'   reproducibility.
-#' @return A list containing the MAP estimate table, the summary statistics
-#'   for the MAP estimate, and the raw MCMC output.
+#' @return A list containing the MAP estimate table, the summary statistics#'   for the MAP estimate, and the raw MCMC output.
 #' @import Rcpp
 #' @import RcppProgress
 #' @export
@@ -31,9 +30,12 @@ generate_map_table <- function(
     max_males_per_female, max_females_per_male,
     decay_constant = -0.5, np_weight = 10.0, sr_weight = 1.0, mm_weight = 10.0,
     n_iter = 200000, burn_in = 20000, thin = 20,
-    initial_method = "simple", seed = NULL
+    initial_method = "auto", seed = NULL
 ) {
   if (!is.null(seed)) set.seed(seed)
+
+  print("--- Validating Demographic Targets ---")
+  check_target_viability(sr_target, mean_mates_target, max_males_per_female, max_females_per_male)
 
   print("--- Setting up MCMC ---")
   config_info <- create_config_info(max_males_per_female, max_females_per_male)
