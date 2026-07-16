@@ -10,9 +10,9 @@
 check_target_viability <- function(sr_target, mean_mates_target,
                                    max_males_per_female, max_females_per_male) {
 
-  # Calculate the required average mates for each sex to hit the global target
-  req_female_mates <- mean_mates_target * (sr_target + 1)
-  req_male_mates   <- mean_mates_target * (sr_target + 1) / sr_target
+  # FIXED: Using the true Average of Averages Bipartite Algebra
+  req_female_mates <- mean_mates_target * (2 * sr_target) / (sr_target + 1)
+  req_male_mates   <- mean_mates_target * 2 / (sr_target + 1)
 
   # Check if females violate the biological cap
   if (req_female_mates > max_males_per_female) {

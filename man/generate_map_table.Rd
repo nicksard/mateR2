@@ -55,8 +55,7 @@ custom starting state of block counts.}
 reproducibility.}
 }
 \value{
-A list containing the MAP estimate table, the summary statistics
-for the MAP estimate, and the raw MCMC output.
+A list containing the MAP estimate table, the summary statistics#'   for the MAP estimate, and the raw MCMC output.
 }
 \description{
 This is the main wrapper function that orchestrates the entire MCMC
