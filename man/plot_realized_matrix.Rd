@@ -14,6 +14,8 @@ plot_realized_matrix(
 \item{mat}{A numeric matrix representing the breeding population. Rows = males, Cols = females.}
 
 \item{title}{A character string for the plot title. Default is "Realized Breeding Matrix".}
+
+\item{fill_label}{Character string specifying the legend title for the fill scale.}
 }
 \value{
 A \code{ggplot} object representing the matrix heatmap.

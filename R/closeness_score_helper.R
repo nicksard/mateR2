@@ -17,6 +17,7 @@
 #' calculate_closeness_score(90, 100)
 #' # A poor match
 #' calculate_closeness_score(10, 100)
+#' @export
 calculate_closeness_score <- function(actual, target_value) {
   if (target_value <= 0 || !is.finite(target_value)) { return(0) }
   if (actual <= 0 || !is.finite(actual)) { return(0) }

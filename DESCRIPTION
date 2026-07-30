@@ -16,6 +16,7 @@ Imports:
     ggplot2,
     patchwork,
     Rcpp,
+    RcppProgress,
     tidyr
 Suggests: 
     knitr,

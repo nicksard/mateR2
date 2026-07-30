@@ -2,30 +2,53 @@
 % Please edit documentation in R/sib_stats_helper.R
 \name{sib.stats}
 \alias{sib.stats}
-\title{Calculate Sibling Pair Statistics from a Breeding Matrix}
+\title{Calculate Sibling Pair Statistics and Family Size Distributions}
 \usage{
 sib.stats(mat)
 }
 \arguments{
-\item{mat}{The breeding matrix to be analyzed. A numeric matrix where rows
-represent males, columns represent females, and cells represent fecundity
-(number of offspring).}
+\item{mat}{A numeric matrix or data frame representing the realized breeding matrix,
+where rows represent males (fathers), columns represent females (mothers), and cell
+values indicate fecundity (number of surviving offspring produced by that pair).}
 }
 \value{
-A data frame containing the total counts of sibling pairs
-(\code{FS_pairs}, \code{MHS_pairs}, \code{PHS_pairs}) and the maximum group sizes
-(\code{max_FS_size}, \code{max_maternal_family}, \code{max_paternal_family}).
+A single-row \code{data.frame} containing:
+\item{FS_pairs}{Total number of full-sibling dyads.}
+\item{MHS_pairs}{Total number of maternal half-sibling dyads.}
+\item{PHS_pairs}{Total number of paternal half-sibling dyads.}
+\item{max_FS_size}{Maximum fecundity produced by a single mating pair.}
+\item{max_maternal_family_size}{Maximum total offspring produced by a female.}
+\item{max_paternal_family_size}{Maximum total offspring produced by a male.}
+\item{mean_MHS}{Mean number of maternal half-siblings per offspring.}
+\item{min_MHS}{Minimum number of maternal half-siblings per offspring.}
+\item{max_MHS}{Maximum number of maternal half-siblings per offspring.}
+\item{var_MHS}{Variance in maternal half-siblings per offspring.}
+\item{sd_MHS}{Standard deviation in maternal half-siblings per offspring.}
+\item{mean_PHS}{Mean number of paternal half-siblings per offspring.}
+\item{min_PHS}{Minimum number of paternal half-siblings per offspring.}
+\item{max_PHS}{Maximum number of paternal half-siblings per offspring.}
+\item{var_PHS}{Variance in paternal half-siblings per offspring.}
+\item{sd_PHS}{Standard deviation in paternal half-siblings per offspring.}
 }
 \description{
-Analyzes a realized breeding matrix to calculate the exact
-number of full-sibling (FS), maternal half-sibling (MHS), and paternal
-half-sibling (PHS) dyads. Also returns maximum family sizes.
-This is critical for evaluating the joint-likelihood configuration space
-used by pedigree reconstruction software like COLONY.
+Analyzes a realized breeding matrix to calculate total counts of
+full-sibling (FS), maternal half-sibling (MHS), and paternal half-sibling (PHS)
+dyads. Additionally computes offspring-level distribution metrics (mean,
+minimum, maximum, variance, and standard deviation) for maternal and paternal
+half-sibling group sizes.
+}
+\details{
+Sibling counts are calculated at both the dyadic level (total pairs) and individual
+juvenile level. The distribution metrics (\code{mean_MHS}, \code{var_MHS}, etc.) evaluate
+the sibling environment from the perspective of each sampled offspring in the
+total cohort.
 }
 \examples{
-# Assume 'my_matrix' is a breeding matrix (rows=males, cols=females)
-# my_matrix <- matrix(c(2, 0, 1, 0, 4, 3), nrow=2, byrow=TRUE)
-# sib_statistics <- sib.stats(my_matrix)
-# print(sib_statistics)
+# Define a 2 male x 3 female breeding matrix
+my_matrix <- matrix(c(2, 0, 1, 0, 4, 3), nrow = 2, byrow = TRUE)
+
+# Calculate sibling pair statistics and family size distributions
+sib_statistics <- sib.stats(my_matrix)
+print(sib_statistics)
+
 }

@@ -16,6 +16,7 @@
 #' # Generate a simple breeding matrix
 #' my_matrix <- brd.mat(moms = 50, dads = 50, lambda.low = 1, lambda.high = 1)
 #' # Note: This is for demonstration of the old method's internal biases.
+#' @export
 brd.mat <- function(moms = 10, dads = 10, lambda.low = 1, lambda.high = 1) {
   mat <- matrix(data = 0, nrow = dads, ncol = moms)
   lambda.mates <- sample(lambda.low:lambda.high, size = 1)

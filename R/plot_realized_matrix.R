@@ -5,6 +5,7 @@
 #'   colored using a custom heat gradient.
 #' @param mat A numeric matrix representing the breeding population. Rows = males, Cols = females.
 #' @param title A character string for the plot title. Default is "Realized Breeding Matrix".
+#' @param fill_label Character string specifying the legend title for the fill scale.
 #' @return A `ggplot` object representing the matrix heatmap.
 #' @import ggplot2
 #' @export
