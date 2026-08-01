@@ -18,7 +18,11 @@ generate_map_table(
   burn_in = 20000,
   thin = 20,
   initial_method = "auto",
-  seed = NULL
+  seed = NULL,
+  sample_ensemble = FALSE,
+  n_ensemble = 100,
+  max_error_pct = 0.05,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -51,15 +55,24 @@ A larger negative value results in a higher penalty.}
 optimal starting state based on targets, or a numeric vector representing a
 custom starting state of block counts.}
 
-\item{seed}{An optional seed for the random number generator to ensure
-reproducibility.}
+\item{seed}{An optional seed for the random number generator to ensure reproducibility.}
+
+\item{sample_ensemble}{Logical. If TRUE, extracts a thinned posterior ensemble matching the demographic targets.}
+
+\item{n_ensemble}{Integer. The number of posterior draws to retain in the ensemble (default: 100).}
+
+\item{max_error_pct}{Numeric. The maximum allowable relative Euclidean distance from targets (default: 0.05).}
+
+\item{verbose}{Logical. If TRUE, prints progress and MAP outputs to the console (default: FALSE).}
 }
 \value{
-A list containing the MAP estimate table, the summary statistics#'   for the MAP estimate, and the raw MCMC output.
+A list containing the MAP estimate table, the summary statistics for the MAP estimate,
+the raw MCMC output, and optionally the high-fidelity posterior ensemble.
 }
 \description{
 This is the main wrapper function that orchestrates the entire MCMC
 simulation. It sets up the initial conditions, runs the core C++ sampler,
 analyzes the output to find the Maximum a Posteriori (MAP) estimate, and
-calculates key statistics for the resulting breeding matrix.
+calculates key statistics for the resulting breeding matrix. Optionally extracts
+a high-fidelity posterior ensemble.
 }
