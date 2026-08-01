@@ -13,9 +13,6 @@
 #'   At `I = 0`, the matrix retains its highly modular, isolated initial state.
 #'   At `I = 1`, the matrix reaches its maximum-entropy ceiling (panmixia).
 #'   Default is 1.0.
-#' @param C A fixed internal scaling constant defining the panmictic
-#'   upper bound of edge swaps relative to the mixing time E*ln(E). Default is 10.
-#'
 #' @return A new, binary IIM that is a randomized version of the input, with
 #'   identical row and column sums, and structurally randomized spatial indexing.
 #'
@@ -32,7 +29,7 @@
 #' # Minimum randomization (Preserves block-diagonals, shuffles IDs only)
 #' baseline_mat <- randomize_mating_structure(example_mat, I = 0.0)
 #' }
-randomize_mating_structure <- function(binary_IIM, I = 1.0, C = 10) {
+randomize_mating_structure <- function(binary_IIM, I = 1.0) {
 
   # --- 1. Input Validation ---
   if (I < 0 || I > 1) {
@@ -50,7 +47,7 @@ randomize_mating_structure <- function(binary_IIM, I = 1.0, C = 10) {
 
   # T_max: The global panmictic upper bound.
   # Mixing time for edge-swapping Markov chains scales as O(E * ln(E)).
-  T_max <- C * E * log(E)
+  T_max <- E * log(E)
 
   # T_swaps: Absolute number of active swaps to execute based on intensity 'I'
   T_swaps <- round(I * T_max)

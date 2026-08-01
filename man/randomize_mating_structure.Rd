@@ -4,7 +4,7 @@
 \alias{randomize_mating_structure}
 \title{Randomize a Breeding Matrix via Bipartite Edge-Swapping}
 \usage{
-randomize_mating_structure(binary_IIM, I = 1, C = 10)
+randomize_mating_structure(binary_IIM, I = 1)
 }
 \arguments{
 \item{binary_IIM}{A binary Individual-by-Individual Matrix (IIM) where '1's
@@ -15,9 +15,6 @@ indicate a mating event. This matrix should be the output of
 At \code{I = 0}, the matrix retains its highly modular, isolated initial state.
 At \code{I = 1}, the matrix reaches its maximum-entropy ceiling (panmixia).
 Default is 1.0.}
-
-\item{C}{A fixed internal scaling constant defining the panmictic
-upper bound of edge swaps relative to the mixing time E*ln(E). Default is 10.}
 }
 \value{
 A new, binary IIM that is a randomized version of the input, with

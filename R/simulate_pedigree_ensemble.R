@@ -54,7 +54,7 @@ simulate_pedigree_ensemble <- function(ensemble,
 
     # Step 2: Stage 2 Curveball Edge Swapping
     if (mixing_I > 0) {
-      mixed_mat <- randomize_mating_structure(binary_mat, intensity = mixing_I)
+      mixed_mat <- randomize_mating_structure(binary_mat, I = mixing_I)
     } else {
       mixed_mat <- binary_mat
     }
