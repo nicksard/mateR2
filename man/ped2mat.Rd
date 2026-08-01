@@ -7,14 +7,15 @@
 ped2mat(ped)
 }
 \arguments{
-\item{ped}{A data frame representing a pedigree, with columns \code{dad} and \code{mom}.}
+\item{ped}{A data frame representing a pedigree, with columns for parents
+(\code{mom}/\code{Mom} and \code{dad}/\code{Dad}).}
 }
 \value{
-A matrix where the cell at \verb{[i, j]} contains the number of offspring
-produced by male \code{i} and female \code{j}.
+A matrix where cell \link{i, j} contains the number of offspring
+produced by male i and female j.
 }
 \description{
-This function takes a pedigree in a long data frame format and
-converts it into a wide breeding matrix (Individual-by-Individual Matrix),
-where rows represent males (dads) and columns represent females (moms).
+Takes a pedigree in long data frame format and converts it into a wide
+breeding matrix (Individual-by-Individual Matrix), where rows represent
+males (dads) and columns represent females (moms).
 }

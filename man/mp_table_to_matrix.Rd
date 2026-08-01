@@ -2,21 +2,18 @@
 % Please edit documentation in R/mp_table_to_matrix.R
 \name{mp_table_to_matrix}
 \alias{mp_table_to_matrix}
-\title{Convert MCMC Mate Pair Table to a Breeding Matrix}
+\title{Convert Mate-Pair Summary Table to Binary Mating Matrix}
 \usage{
 mp_table_to_matrix(mp_table)
 }
 \arguments{
-\item{mp_table}{A data frame with at least the columns \code{Males}, \code{Females}, and \code{Count},
-representing the number of males, females, and the number of blocks of that
-type.}
+\item{mp_table}{Data frame containing 'Males', 'Females', and a count column
+('MAP_Count', 'Count', or 'n').}
 }
 \value{
-A binary matrix where rows represent males and columns represent females.
-A value of 1 indicates a mating occurred. The matrix is block-diagonal.
+Binary integer matrix where rows represent individual males and columns represent females.
 }
 \description{
-This function takes a summary table of breeding configurations
-(e.g., the output from a MCMC run) and converts it into a structured, binary
-Individual-by-Individual Matrix (IIM).
+Expands a 3-column mate-pair summary table (block male size, block female size, count)
+into a full binary individual-by-individual matrix (IIM).
 }

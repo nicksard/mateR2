@@ -15,36 +15,25 @@ simulate_pedigree_ensemble(
 )
 }
 \arguments{
-\item{ensemble}{Either an object of class \code{"mateR2_ensemble"} returned by
-\code{\link{sample_posterior_ensemble}}, or a direct list of \eqn{\vec{c}_k} count vectors.}
+\item{ensemble}{An object returned by \code{\link{sample_posterior_ensemble}} or \code{\link{generate_map_table}}.}
 
-\item{mixing_I}{Numeric. Curveball rewiring intensity between 0.0 (block-diagonal)
-and 1.0 (full panmictic mixing). Default is 0.25.}
+\item{mixing_I}{Numeric. Curveball rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.}
 
 \item{min_fecundity}{Integer. Minimum offspring allocated per active pair-bond (default: 20).}
 
 \item{max_fecundity}{Integer. Maximum offspring allocated per active pair-bond (default: 100).}
 
-\item{fecundity_type}{Character. Fitness distribution type for \code{\link{brd.mat.fitness}}
-(e.g., \code{"uniform"}, \code{"lognormal"}). Default is \code{"uniform"}.}
+\item{fecundity_type}{Character. Fitness distribution type for \code{\link{brd.mat.fitness}} (default: \code{"uniform"}).}
 
 \item{juvenile_sample_size}{Integer. Number of juveniles to sub-sample per pedigree (default: 500).}
 
-\item{include_map}{Logical. If \code{ensemble} is a \code{"mateR2_ensemble"} object,
-whether to include the MAP pedigree as the first element of the output list. Default is \code{TRUE}.}
+\item{include_map}{Logical. Whether to include the MAP pedigree as the first element of the output list (default: \code{TRUE}).}
 }
 \value{
-A list of ground-truth pedigree data frames with columns \code{c("Offspring", "Mom", "Dad")}.
+A list of ground-truth pedigree data frames with columns \code{c("off", "mom", "dad")}.
 }
 \description{
-Takes a list of Mate-Pair Summary Table count vectors (\eqn{\vec{c}_k}), expands each
-into an Individual-by-Individual Matrix (IIM), applies Curveball degree-preserving
-rewiring, populates offspring fecundities, and sub-samples juveniles to produce ready-to-use pedigrees.
-}
-\examples{
-\dontrun{
-mcmc_res <- generate_map_table(Np_target = 500, sr_target = 1.5, mean_mates_target = 2.0)
-ensemble <- sample_posterior_ensemble(mcmc_res, n_samples = 50)
-pedigree_list <- simulate_pedigree_ensemble(ensemble, mixing_I = 0.25, juvenile_sample_size = 500)
-}
+Takes a list of Mate-Pair Summary Table count vectors, expands each into an Individual-by-Individual
+Matrix (IIM), applies Curveball degree-preserving rewiring, populates offspring fecundities,
+and sub-samples juveniles to produce ready-to-use pedigrees.
 }

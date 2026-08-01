@@ -1,29 +1,18 @@
 #' Simulate Pedigrees Across a Posterior Ensemble of Count Vectors
 #'
-#' Takes a list of Mate-Pair Summary Table count vectors (\eqn{\vec{c}_k}), expands each
-#' into an Individual-by-Individual Matrix (IIM), applies Curveball degree-preserving
-#' rewiring, populates offspring fecundities, and sub-samples juveniles to produce ready-to-use pedigrees.
+#' Takes a list of Mate-Pair Summary Table count vectors, expands each into an Individual-by-Individual
+#' Matrix (IIM), applies Curveball degree-preserving rewiring, populates offspring fecundities,
+#' and sub-samples juveniles to produce ready-to-use pedigrees.
 #'
-#' @param ensemble Either an object of class \code{"mateR2_ensemble"} returned by
-#'   \code{\link{sample_posterior_ensemble}}, or a direct list of \eqn{\vec{c}_k} count vectors.
-#' @param mixing_I Numeric. Curveball rewiring intensity between 0.0 (block-diagonal)
-#'   and 1.0 (full panmictic mixing). Default is 0.25.
+#' @param ensemble An object returned by \code{\link{sample_posterior_ensemble}} or \code{\link{generate_map_table}}.
+#' @param mixing_I Numeric. Curveball rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.
 #' @param min_fecundity Integer. Minimum offspring allocated per active pair-bond (default: 20).
 #' @param max_fecundity Integer. Maximum offspring allocated per active pair-bond (default: 100).
-#' @param fecundity_type Character. Fitness distribution type for \code{\link{brd.mat.fitness}}
-#'   (e.g., \code{"uniform"}, \code{"lognormal"}). Default is \code{"uniform"}.
+#' @param fecundity_type Character. Fitness distribution type for \code{\link{brd.mat.fitness}} (default: \code{"uniform"}).
 #' @param juvenile_sample_size Integer. Number of juveniles to sub-sample per pedigree (default: 500).
-#' @param include_map Logical. If \code{ensemble} is a \code{"mateR2_ensemble"} object,
-#'   whether to include the MAP pedigree as the first element of the output list. Default is \code{TRUE}.
+#' @param include_map Logical. Whether to include the MAP pedigree as the first element of the output list (default: \code{TRUE}).
 #'
-#' @return A list of ground-truth pedigree data frames with columns \code{c("Offspring", "Mom", "Dad")}.
-#'
-#' @examples
-#' \dontrun{
-#' mcmc_res <- generate_map_table(Np_target = 500, sr_target = 1.5, mean_mates_target = 2.0)
-#' ensemble <- sample_posterior_ensemble(mcmc_res, n_samples = 50)
-#' pedigree_list <- simulate_pedigree_ensemble(ensemble, mixing_I = 0.25, juvenile_sample_size = 500)
-#' }
+#' @return A list of ground-truth pedigree data frames with columns \code{c("off", "mom", "dad")}.
 #' @export
 simulate_pedigree_ensemble <- function(ensemble,
                                        mixing_I = 0.25,
@@ -33,33 +22,63 @@ simulate_pedigree_ensemble <- function(ensemble,
                                        juvenile_sample_size = 500,
                                        include_map = TRUE) {
 
-  # --- 1. Input Parsing ---
-  if (inherits(ensemble, "mateR2_ensemble")) {
-    c_k_list <- ensemble$ensemble_c_k
-    if (include_map && !is.null(ensemble$map_c_k)) {
-      c_k_list <- c(list(MAP = ensemble$map_c_k), c_k_list)
-    }
-  } else if (is.list(ensemble)) {
-    c_k_list <- ensemble
+  # --- 1. Base Grid Extraction ---
+  map_tab <- NULL
+  if (!is.null(ensemble$map_c_k) && is.data.frame(ensemble$map_c_k)) {
+    map_tab <- ensemble$map_c_k
+  } else if (!is.null(ensemble$map_table) && is.data.frame(ensemble$map_table)) {
+    map_tab <- ensemble$map_table
   } else {
-    stop("Input 'ensemble' must be a list of c_k vectors or a 'mateR2_ensemble' object.")
+    stop("Input 'ensemble' must contain a valid 'map_c_k' or 'map_table' data frame.")
   }
 
-  # --- 2. Process Each Vector Through Stages 1 -> 2 -> 3 ---
+  if (!all(c("Males", "Females") %in% names(map_tab))) {
+    stop("The map table in 'ensemble' must contain 'Males' and 'Females' columns.")
+  }
+  config_base <- map_tab[, c("Males", "Females")]
+
+  # --- 2. Ensemble Vector List Extraction ---
+  if (!is.null(ensemble$ensemble_c_k) && is.list(ensemble$ensemble_c_k)) {
+    c_k_list <- ensemble$ensemble_c_k
+  } else {
+    stop("Input 'ensemble' does not contain a valid 'ensemble_c_k' list of sample vectors.")
+  }
+
+  # Ensure all input draw list elements have explicit names
+  draw_names <- paste0("Draw_", seq_along(c_k_list))
+  names(c_k_list) <- draw_names
+
+  # Prepend MAP count vector if requested
+  if (include_map) {
+    map_vec <- NULL
+    if ("MAP_Count" %in% names(map_tab)) {
+      map_vec <- map_tab$MAP_Count
+    } else if ("Count" %in% names(map_tab)) {
+      map_vec <- map_tab$Count
+    }
+
+    if (!is.null(map_vec)) {
+      c_k_list <- c(list(MAP = map_vec), c_k_list)
+    }
+  }
+
+  # --- 3. Iterate over draws and simulate pedigrees ---
   pedigrees <- lapply(seq_along(c_k_list), function(i) {
-    c_k <- c_k_list[[i]]
 
-    # Step 1: Expand c_k into block-diagonal binary IIM
-    binary_mat <- mp_table_to_matrix(c_k)
+    current_mp_table <- config_base
+    current_mp_table$MAP_Count <- as.numeric(c_k_list[[i]])
 
-    # Step 2: Stage 2 Curveball Edge Swapping
+    # Stage 1 -> Stage 2 Expansion (Mate-Pair Table to Binary Matrix)
+    binary_mat <- mp_table_to_matrix(current_mp_table)
+
+    # Stage 2 Curveball Rewiring (Passing parameter I = mixing_I)
     if (mixing_I > 0) {
       mixed_mat <- randomize_mating_structure(binary_mat, I = mixing_I)
     } else {
       mixed_mat <- binary_mat
     }
 
-    # Step 3: Populate Pair Offspring Fecundity
+    # Stage 3 Fecundity Assignment
     fecund_mat <- brd.mat.fitness(
       mat      = mixed_mat,
       min.fert = min_fecundity,
@@ -67,18 +86,16 @@ simulate_pedigree_ensemble <- function(ensemble,
       type     = fecundity_type
     )
 
-    # Step 4: Sub-sample Juveniles (Field Sampling Filter)
+    # Sub-sample Juveniles
     sampled_df <- mat.sub.sample(fecund_mat, num_offspring = juvenile_sample_size)
 
-    # Step 5: Convert to Standard Pedigree Data Frame
+    # Convert to standard Pedigree Data Frame
     ped <- convert2ped(sampled_df)
     return(ped)
   })
 
-  # Preserve names if present (e.g., MAP)
-  if (!is.null(names(c_k_list))) {
-    names(pedigrees) <- names(c_k_list)
-  }
+  # Assign clean list names
+  names(pedigrees) <- names(c_k_list)
 
   return(pedigrees)
 }
