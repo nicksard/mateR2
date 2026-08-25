@@ -36,7 +36,7 @@ generate_map_table <- function(
     decay_constant = -0.5, np_weight = 10.0, sr_weight = 1.0, mm_weight = 10.0,
     n_iter = 200000, burn_in = 20000, thin = 20,
     initial_method = "auto", seed = NULL,
-    sample_ensemble = FALSE, n_ensemble = 100, max_error_pct = 0.05, verbose = FALSE
+    sample_ensemble = FALSE, n_ensemble = 100, max_error_pct = Inf, verbose = FALSE
 ) {
   if (!is.null(seed)) set.seed(seed)
 

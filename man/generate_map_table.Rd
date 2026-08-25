@@ -21,7 +21,7 @@ generate_map_table(
   seed = NULL,
   sample_ensemble = FALSE,
   n_ensemble = 100,
-  max_error_pct = 0.05,
+  max_error_pct = Inf,
   verbose = FALSE
 )
 }
