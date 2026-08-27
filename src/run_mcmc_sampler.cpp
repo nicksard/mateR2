@@ -2,8 +2,6 @@
 #include <vector>
 #include <cmath> // For log, exp, abs, floor
 #include <numeric> // For std::accumulate (optional)
-#include <random> // For C++11 random number generation
-#include <chrono> // For seeding
 
 // [[Rcpp::depends(RcppProgress)]]
 #include <progress.hpp> // For progress bar
@@ -167,9 +165,8 @@ List run_mcmc_sampler_cpp(
   Progress p(n_iter, true);
 
   // Use C++11 random number generation
-  unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-  std::mt19937_64 gen(seed);
-  std::uniform_real_distribution<double> runif_dist(0.0, 1.0);
+  Rcpp::RNGScope rng_scope;
+  auto runif01 = []() { return R::unif_rand(); };
 
   // --- MCMC Loop ---
   for (int t = 0; t < n_iter; ++t) {
@@ -180,10 +177,10 @@ List run_mcmc_sampler_cpp(
     // **a. Propose**
     NumericVector Proposed_Counts = clone(Current_Counts);
     // Sample index (0 to n-1 in C++)
-    int i = std::floor(runif_dist(gen) * num_block_types);
+    int i = std::floor(runif01() * num_block_types);
 
     // Propose delta=+1 or -1
-    int delta = (Proposed_Counts[i] == 0) ? 1 : ((runif_dist(gen) < 0.5) ? -1 : 1);
+    int delta = (Proposed_Counts[i] == 0) ? 1 : ((runif01() < 0.5) ? -1 : 1);
     Proposed_Counts[i] += delta;
 
     // **b. Evaluate Proposal**
@@ -196,7 +193,7 @@ List run_mcmc_sampler_cpp(
     // **c. Accept/Reject**
     if (std::isfinite(Proposed_Log_Prob)) {
       double log_acceptance_ratio = Proposed_Log_Prob - Current_Log_Prob;
-      if (std::log(runif_dist(gen)) < log_acceptance_ratio) {
+      if (std::log(runif01()) < log_acceptance_ratio) {
         // Accept
         Current_Counts = Proposed_Counts;
         Current_Log_Prob = Proposed_Log_Prob;
