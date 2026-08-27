@@ -19,8 +19,8 @@ create_config_info <- function(max_males_per_female, max_females_per_male) {
     stop("Maximum mates must be at least 1.")
   }
   config_info <- expand.grid(
-    Males = 1:max_females_per_male,
-    Females = 1:max_males_per_female
+    Males   = 1:max_males_per_female,
+    Females = 1:max_females_per_male
   )
   config_info$Block <- paste(config_info$Males, config_info$Females, sep = ":")
   config_info$Complexity_Diff <- (config_info$Males + config_info$Females) - 2
