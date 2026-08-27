@@ -179,9 +179,18 @@ List run_mcmc_sampler_cpp(
     // Sample index (0 to n-1 in C++)
     int i = std::floor(runif01() * num_block_types);
 
-    // Propose delta=+1 or -1
-    int delta = (Proposed_Counts[i] == 0) ? 1 : ((runif01() < 0.5) ? -1 : 1);
+    // Propose delta=+1 or -1. A block already at zero cannot be decremented,
+    // so the proposal is reflected upward there.
+    bool at_zero_before = (Proposed_Counts[i] == 0);
+    int delta = at_zero_before ? 1 : ((runif01() < 0.5) ? -1 : 1);
     Proposed_Counts[i] += delta;
+
+    // Because of that reflection the proposal is NOT symmetric on the boundary:
+    // q(0 -> 1) = 1 but q(1 -> 0) = 1/2. The Hastings correction restores
+    // detailed balance. It is identically zero for interior moves.
+    bool at_zero_after = (Proposed_Counts[i] == 0);
+    double log_hastings = (at_zero_after  ? 0.0 : std::log(0.5))
+      - (at_zero_before ? 0.0 : std::log(0.5));
 
     // **b. Evaluate Proposal**
     double Proposed_Log_Prob = cpp_calculate_target_log_prob(
@@ -192,7 +201,7 @@ List run_mcmc_sampler_cpp(
 
     // **c. Accept/Reject**
     if (std::isfinite(Proposed_Log_Prob)) {
-      double log_acceptance_ratio = Proposed_Log_Prob - Current_Log_Prob;
+      double log_acceptance_ratio = Proposed_Log_Prob - Current_Log_Prob + log_hastings;
       if (std::log(runif01()) < log_acceptance_ratio) {
         // Accept
         Current_Counts = Proposed_Counts;
