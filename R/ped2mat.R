@@ -6,7 +6,7 @@
 #'
 #' @param ped A data frame representing a pedigree, with columns for parents
 #'   (`mom`/`Mom` and `dad`/`Dad`).
-#' @return A matrix where cell [i, j] contains the number of offspring
+#' @return A matrix where cell `[i, j]` contains the number of offspring
 #'   produced by male i and female j.
 #' @importFrom stats xtabs
 #' @export

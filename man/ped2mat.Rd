@@ -11,7 +11,7 @@ ped2mat(ped)
 (\code{mom}/\code{Mom} and \code{dad}/\code{Dad}).}
 }
 \value{
-A matrix where cell \link{i, j} contains the number of offspring
+A matrix where cell \verb{[i, j]} contains the number of offspring
 produced by male i and female j.
 }
 \description{

@@ -13,9 +13,9 @@
 #' \code{\link{create_initial_counts}} is deterministic, so every chain would
 #' otherwise begin from the identical state and the Gelman-Rubin statistic would
 #' be uninformative. Each chain therefore jitters the warm start: active block
-#' counts are multiplied by a uniform draw on [0.6, 1.4] and rounded, with a floor
-#' of one. That disperses the starting states while keeping them near the target
-#' manifold, so no chain begins somewhere infeasible.
+#' counts are multiplied by a uniform draw between 0.6 and 1.4 and rounded, with
+#' a floor of one. That disperses the starting states while keeping them near the
+#' target manifold, so no chain begins somewhere infeasible.
 #'
 #' Traces are the post-burn-in portion of the recorded history, thinned by `thin`
 #' and wrapped as \code{coda::mcmc} objects. Requires the coda package, which is

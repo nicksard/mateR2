@@ -4,9 +4,9 @@
 \name{mateR2-package}
 \alias{mateR2}
 \alias{mateR2-package}
-\title{mateR2: What the Package Does (One Line, Title Case)}
+\title{mateR2: Simulate Single-Cohort Pedigrees Using a Constrained Bipartite Sampler}
 \description{
-What the package does (one paragraph).
+Simulates single-cohort pedigrees for dioecious species by treating the mating pool as a bipartite network. A Metropolis-Hastings Markov chain Monte Carlo sampler, written in C++ via 'Rcpp', navigates a compressed state space of discrete mating-block configurations to satisfy user-specified targets for parental abundance, operational sex ratio and mean number of mates. A joint-degree-preserving edge-swapping routine then rewires the expanded individual-level matrix to dissolve modular block boundaries while holding every individual's mating success constant. Fecundity allocation, offspring sub-sampling, sibship and parental yield-class statistics support benchmarking of pedigree reconstruction software and evaluation of field sampling designs.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com}
+\strong{Maintainer}: Nicholas M. Sard \email{nicksard@gmail.com} (\href{https://orcid.org/0000-0001-7695-2946}{ORCID})
 
 }
 \keyword{internal}
