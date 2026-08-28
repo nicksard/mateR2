@@ -20,7 +20,9 @@ Imports:
     tidyr
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 URL: https://github.com/nicksard/mateR2
 BugReports: https://github.com/nicksard/mateR2/issues
+Config/testthat/edition: 3
