@@ -7,11 +7,13 @@
 mat2ped(mat)
 }
 \arguments{
-\item{mat}{A breeding matrix where rows are males and columns are females.}
+\item{mat}{A breeding matrix where rows are males and columns are females.
+When the matrix carries dimnames these are used as the parent identifiers;
+positional \code{dad1}/\code{mom1} labels are generated only as a fallback.}
 }
 \value{
 A data frame with three columns: \code{off} (offspring ID), \code{mom} (mother ID),
-and \code{dad} (father ID).
+and \code{dad} (father ID), one row per offspring in the full cohort.
 }
 \description{
 This function takes a breeding matrix and converts it into a

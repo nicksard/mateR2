@@ -9,7 +9,8 @@ mat.sub.sample(mat, num_offspring)
 \arguments{
 \item{mat}{The breeding matrix with offspring counts.}
 
-\item{num_offspring}{The number of offspring to sub-sample.}
+\item{num_offspring}{The number of offspring to sub-sample. Cannot exceed the
+total cohort size \code{sum(mat)}.}
 }
 \value{
 A data frame in long format containing the sampled mate pairs,
@@ -19,10 +20,23 @@ their original offspring count, and the new sampled count.
 This function serves as the Null Model for field sampling. It
 simulates the process of capturing a fixed number of offspring from a
 breeding matrix under the assumption of perfect panmixia (no
-spatialtemporal clustering). The probability of sampling an offspring is
-strictly proportional to the initial number of offspring produced by its
-specific mate pair (a multinomial draw with replacement). This represents
-the "best-case scenario" for sampling offspring for pedigree analysis and
+spatial-temporal clustering). Offspring are drawn \strong{without
+replacement} from the realised cohort, so a mate pair can never contribute
+more sampled offspring than it actually produced. This represents the
+"best-case scenario" for sampling offspring for pedigree analysis and
 serves as a baseline against which empirical or clustered sampling methods
 can be tested.
+}
+\details{
+The draw is an exact multivariate hypergeometric sample over the cells of the
+breeding matrix: each mate pair's sampled count is drawn conditionally on the
+offspring and sample budget still remaining. This is equivalent to shuffling
+the whole cohort and taking the first \code{num_offspring} juveniles, but does not
+require the cohort to be expanded in memory. Every offspring therefore has the
+same inclusion probability, \code{num_offspring / sum(mat)}, and the expected number
+drawn from a pair is proportional to that pair's fecundity.
+
+Mate pairs that produced offspring but had none sampled are retained in the
+output with \code{off1 = 0}, which keeps undetected parents enumerable for
+downstream yield-class statistics.
 }

@@ -8,10 +8,17 @@ mp_table_to_matrix(mp_table)
 }
 \arguments{
 \item{mp_table}{Data frame containing 'Males', 'Females', and a count column
-('MAP_Count', 'Count', or 'n').}
+('MAP_Count', 'Count', or 'n').
+#' @details
+Individuals are named at creation as \code{M001}/\code{F001}, zero-padded to at least
+three digits and wider for larger populations so that alphabetical ordering
+matches numeric ordering (\code{as.table()} and \code{xtabs()} sort labels as strings).
+These names travel with the individual through \code{randomize_mating_structure()},
+\code{brd.mat.fitness()}, \code{mat.sub.sample()} and \code{convert2ped()}.}
 }
 \value{
-Binary integer matrix where rows represent individual males and columns represent females.
+Binary integer matrix where rows represent individual males and
+columns represent females, carrying \code{M}/\code{F} prefixed dimnames.
 }
 \description{
 Expands a 3-column mate-pair summary table (block male size, block female size, count)
