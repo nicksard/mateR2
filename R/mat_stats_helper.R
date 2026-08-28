@@ -6,9 +6,22 @@
 #'   numeric matrix where rows represent males and columns represent females.
 #'   Non-zero values indicate a mating event, and the value itself represents
 #'   the number of offspring (Reproductive Success) from that mating.
+#' @details
+#' `mean.male.rs` and `mean.female.rs` are k-bar in the Crow & Kimura (1970) and
+#' Caballero (1994) sense: offspring per parent computed within each sex. They
+#' satisfy `mean.female.rs = SR * mean.male.rs` by construction. `var.male.rs`
+#' and `var.female.rs` are the corresponding V_k, and the scaled forms are
+#' V_k / k-bar, the quantity conventionally reported when comparing reproductive
+#' skew against empirical systems.
+#'
+#' `offspring.per.parent` pools both sexes. It is NOT k-bar: every offspring is
+#' counted once but divided over two parents, so it is half the per-sex mean when
+#' the sex ratio is even. It was previously named `overall.mean.rs`.
+#'
 #' @return A data frame containing population sizes (`num.males`, `num.females`),
-#'   the total count of mate pairs (`mp.count`), and the mean, min, and max
-#'   values for both mating success and reproductive success.
+#'   the total count of mate pairs (`mp.count`), the mean, min and max values for
+#'   mating success, and per-sex reproductive success summaries: mean (k-bar),
+#'   variance (V_k) and scaled variance (V_k / k-bar).
 #' @examples
 #' # Assume 'my_matrix' is a breeding matrix (rows=males, cols=females)
 #' # my_matrix <- matrix(c(1,2,0,0, 0,0,1,3), nrow=2, byrow=TRUE)
@@ -74,10 +87,19 @@ mat.stats <- function(mat) {
     # --- FIXED BIOLOGICAL MATH: Average of Averages ---
     overall.mean.mates = round((mean_m_mates + mean_f_mates) / 2.0, 2),
 
-    # Reproductive Success (RS) metrics
+    # Reproductive Success (RS) metrics. These two are k-bar, per sex.
     mean.male.rs = round(mean(male_rs), 2),
     mean.female.rs = round(mean(female_rs), 2),
-    overall.mean.rs = round(total_offspring / (num.males + num.females), 2)
+
+    # Variance in reproductive success (V_k) and its scaled form V_k / k-bar
+    var.male.rs = round(stats::var(male_rs), 2),
+    var.female.rs = round(stats::var(female_rs), 2),
+    scaled.vk.male = round(stats::var(male_rs) / mean(male_rs), 2),
+    scaled.vk.female = round(stats::var(female_rs) / mean(female_rs), 2),
+
+    # Offspring per parent, pooled across both sexes. NOT k-bar: each offspring
+    # is counted once but divided over two parents.
+    offspring.per.parent = round(total_offspring / (num.males + num.females), 2)
   )
 
   return(stats_df)

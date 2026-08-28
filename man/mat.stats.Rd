@@ -14,13 +14,26 @@ the number of offspring (Reproductive Success) from that mating.}
 }
 \value{
 A data frame containing population sizes (\code{num.males}, \code{num.females}),
-the total count of mate pairs (\code{mp.count}), and the mean, min, and max
-values for both mating success and reproductive success.
+the total count of mate pairs (\code{mp.count}), the mean, min and max values for
+mating success, and per-sex reproductive success summaries: mean (k-bar),
+variance (V_k) and scaled variance (V_k / k-bar).
 }
 \description{
 This function analyzes a breeding matrix and calculates key
 statistics related to mating patterns, such as population size, mate counts,
 and reproductive success. It is a key tool for verifying the output of simulation methods.
+}
+\details{
+\code{mean.male.rs} and \code{mean.female.rs} are k-bar in the Crow & Kimura (1970) and
+Caballero (1994) sense: offspring per parent computed within each sex. They
+satisfy \code{mean.female.rs = SR * mean.male.rs} by construction. \code{var.male.rs}
+and \code{var.female.rs} are the corresponding V_k, and the scaled forms are
+V_k / k-bar, the quantity conventionally reported when comparing reproductive
+skew against empirical systems.
+
+\code{offspring.per.parent} pools both sexes. It is NOT k-bar: every offspring is
+counted once but divided over two parents, so it is half the per-sex mean when
+the sex ratio is even. It was previously named \code{overall.mean.rs}.
 }
 \examples{
 # Assume 'my_matrix' is a breeding matrix (rows=males, cols=females)
