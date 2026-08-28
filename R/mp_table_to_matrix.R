@@ -5,8 +5,15 @@
 #'
 #' @param mp_table Data frame containing 'Males', 'Females', and a count column
 #'   ('MAP_Count', 'Count', or 'n').
+#'#' @details
+#' Individuals are named at creation as `M001`/`F001`, zero-padded to at least
+#' three digits and wider for larger populations so that alphabetical ordering
+#' matches numeric ordering (`as.table()` and `xtabs()` sort labels as strings).
+#' These names travel with the individual through `randomize_mating_structure()`,
+#' `brd.mat.fitness()`, `mat.sub.sample()` and `convert2ped()`.
 #'
-#' @return Binary integer matrix where rows represent individual males and columns represent females.
+#' @return Binary integer matrix where rows represent individual males and
+#'   columns represent females, carrying `M`/`F` prefixed dimnames.
 #' @export
 mp_table_to_matrix <- function(mp_table) {
   if (!is.data.frame(mp_table)) {
@@ -34,6 +41,13 @@ mp_table_to_matrix <- function(mp_table) {
   }
 
   mat <- matrix(0L, nrow = num_males, ncol = num_females)
+
+  # Stable, sex-prefixed, zero-padded individual identifiers
+  dimnames(mat) <- list(
+    sprintf("M%0*d", max(3L, nchar(num_males)),   seq_len(num_males)),
+    sprintf("F%0*d", max(3L, nchar(num_females)), seq_len(num_females))
+  )
+
   current_row <- 1
   current_col <- 1
 

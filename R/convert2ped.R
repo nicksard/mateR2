@@ -28,8 +28,9 @@ convert2ped <- function(df) {
     dad = rep(dads_vec, times = offspring_counts)
   )
 
-  # Add unique offspring IDs
-  df.out$off <- paste0("off_", 1:nrow(df.out))
+  # Offspring IDs are alphanumeric, matching mat2ped(); external parentage
+  # software (COLONY) allows letters and digits only.
+  df.out$off <- paste0("off", 1:nrow(df.out))
 
   # Reorder columns to the standard pedigree format
   df.out <- df.out[, c("off", "mom", "dad")]
