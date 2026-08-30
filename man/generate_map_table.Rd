@@ -22,7 +22,9 @@ generate_map_table(
   sample_ensemble = FALSE,
   n_ensemble = 100,
   max_error_pct = Inf,
-  verbose = FALSE
+  verbose = FALSE,
+  show_progress = interactive(),
+  complexity = c("sum", "cyclomatic", "quadratic", "asymmetry")
 )
 }
 \arguments{
@@ -64,6 +66,11 @@ custom starting state of block counts.}
 \item{max_error_pct}{Numeric. The maximum allowable relative Euclidean distance from targets (default: 0.05).}
 
 \item{verbose}{Logical. If TRUE, prints progress and MAP outputs to the console (default: FALSE).}
+
+\item{show_progress}{Logical. If TRUE, the C++ sampler draws a progress bar
+and prints the final acceptance rate. Defaults to \code{interactive()}, so
+scripted and parallel runs are silent; a progress bar written from a
+parallel worker is noise in a log and can stall console I/O on Windows.}
 }
 \value{
 A list containing the MAP estimate table, the summary statistics for the MAP estimate,

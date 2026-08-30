@@ -25,6 +25,10 @@
 #' @param n_ensemble Integer. The number of posterior draws to retain in the ensemble (default: 100).
 #' @param max_error_pct Numeric. The maximum allowable relative Euclidean distance from targets (default: 0.05).
 #' @param verbose Logical. If TRUE, prints progress and MAP outputs to the console (default: FALSE).
+#' @param show_progress Logical. If TRUE, the C++ sampler draws a progress bar
+#'   and prints the final acceptance rate. Defaults to \code{interactive()}, so
+#'   scripted and parallel runs are silent; a progress bar written from a
+#'   parallel worker is noise in a log and can stall console I/O on Windows.
 #' @return A list containing the MAP estimate table, the summary statistics for the MAP estimate,
 #'   the raw MCMC output, and optionally the high-fidelity posterior ensemble.
 #' @import Rcpp
@@ -36,15 +40,18 @@ generate_map_table <- function(
     decay_constant = -0.5, np_weight = 10.0, sr_weight = 1.0, mm_weight = 10.0,
     n_iter = 200000, burn_in = 20000, thin = 20,
     initial_method = "auto", seed = NULL,
-    sample_ensemble = FALSE, n_ensemble = 100, max_error_pct = Inf, verbose = FALSE
+    sample_ensemble = FALSE, n_ensemble = 100, max_error_pct = Inf, verbose = FALSE,
+    show_progress = interactive(), complexity = c("sum", "cyclomatic", "quadratic", "asymmetry")
 ) {
+  complexity <- match.arg(complexity)
   if (!is.null(seed)) set.seed(seed)
 
   if (verbose) print("--- Validating Demographic Targets ---")
   check_target_viability(sr_target, mean_mates_target, max_males_per_female, max_females_per_male)
 
   if (verbose) print("--- Setting up MCMC ---")
-  config_info <- create_config_info(max_males_per_female, max_females_per_male)
+  config_info <- create_config_info(max_males_per_female, max_females_per_male,
+                                    complexity = complexity)
 
   # THE "AUTO" VS "CUSTOM" LOGIC
   if (is.character(initial_method) && initial_method == "auto") {
@@ -58,7 +65,8 @@ generate_map_table <- function(
   target_values <- list(Np_target = Np_target, sr_target = sr_target, mean_mates_target = mean_mates_target)
   mcmc_params <- list(n_iter = n_iter, burn_in = burn_in, thin = thin,
                       decay_constant = decay_constant, np_weight = np_weight,
-                      sr_weight = sr_weight, mm_weight = mm_weight)
+                      sr_weight = sr_weight, mm_weight = mm_weight,
+                      show_progress = isTRUE(show_progress))
 
   if (verbose) print("--- Running MCMC Sampler ---")
   run_time <- system.time({

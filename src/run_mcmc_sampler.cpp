@@ -161,8 +161,14 @@ List run_mcmc_sampler_cpp(
   List results_list;
   int accepted_count = 0;
 
-  // Progress bar setup
-  Progress p(n_iter, true);
+  // Progress bar setup. Optional: a progress bar written from a parallel worker
+  // is at best noise in a log and at worst an I/O lockup on Windows. Absent the
+  // parameter the bar is shown, so older callers are unaffected.
+  bool show_progress = true;
+  if (mcmc_params.containsElementNamed("show_progress")) {
+    show_progress = as<bool>(mcmc_params["show_progress"]);
+  }
+  Progress p(n_iter, show_progress);
 
   // Use C++11 random number generation
   Rcpp::RNGScope rng_scope;
@@ -242,7 +248,10 @@ List run_mcmc_sampler_cpp(
 
   // --- Prepare Output ---
   double acceptance_rate = (double)accepted_count / n_iter;
-  Rcout << "MCMC finished. Overall Acceptance Rate: " << round(acceptance_rate * 10000.0) / 100.0 << "%" << std::endl;
+  if (show_progress) {
+    Rcout << "MCMC finished. Overall Acceptance Rate: "
+          << round(acceptance_rate * 10000.0) / 100.0 << "%" << std::endl;
+  }
 
   // Create history DataFrame for return
   DataFrame history_df = DataFrame::create(

@@ -4,7 +4,11 @@
 \alias{create_config_info}
 \title{Create a Mating Configuration Information Table}
 \usage{
-create_config_info(max_males_per_female, max_females_per_male)
+create_config_info(
+  max_males_per_female,
+  max_females_per_male,
+  complexity = c("sum", "cyclomatic", "quadratic", "asymmetry")
+)
 }
 \arguments{
 \item{max_males_per_female}{The maximum number of males a single female can

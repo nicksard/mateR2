@@ -57,7 +57,15 @@ run_mcmc_chains <- function(Np_target, sr_target, mean_mates_target,
                             max_males_per_female, max_females_per_male,
                             n_chains = 4, seed = 1,
                             n_iter = 200000, burn_in = 20000, thin = 10,
+                            trace_thin = NULL,
+                            complexity = c("sum", "cyclomatic", "quadratic", "asymmetry"),
                             ...) {
+  complexity <- match.arg(complexity)
+
+  # `thin` governs the retained sample pool (MAP search + posterior ensemble).
+  # `trace_thin` governs only the diagnostic traces. Unrelated choices; coupling
+  # them makes ESS move when the chain itself has not changed.
+  if (is.null(trace_thin)) trace_thin <- thin
 
   if (!requireNamespace("coda", quietly = TRUE)) {
     stop("Package 'coda' is required for run_mcmc_chains(). ",
@@ -70,7 +78,8 @@ run_mcmc_chains <- function(Np_target, sr_target, mean_mates_target,
   check_target_viability(sr_target, mean_mates_target,
                          max_males_per_female, max_females_per_male)
 
-  config_info <- create_config_info(max_males_per_female, max_females_per_male)
+  config_info <- create_config_info(max_males_per_female, max_females_per_male,
+                                    complexity = complexity)
   warm_start  <- create_initial_counts(config_info, Np_target, sr_target)
 
   chain_results <- vector("list", n_chains)
@@ -93,6 +102,7 @@ run_mcmc_chains <- function(Np_target, sr_target, mean_mates_target,
       max_males_per_female = max_males_per_female,
       max_females_per_male = max_females_per_male,
       n_iter = n_iter, burn_in = burn_in, thin = thin,
+      complexity = complexity,
       initial_method = init,
       seed = chain_seed,
       ...
@@ -106,8 +116,8 @@ run_mcmc_chains <- function(Np_target, sr_target, mean_mates_target,
     coda::mcmc.list(lapply(chain_results, function(res) {
       h    <- res$mcmc_output$history
       post <- h[h$iteration > burn_in, ]
-      keep <- seq(1, nrow(post), by = thin)
-      coda::mcmc(post[[p]][keep], thin = thin)
+      keep <- seq(1, nrow(post), by = trace_thin)
+      coda::mcmc(post[[p]][keep], thin = trace_thin)
     }))
   })
 

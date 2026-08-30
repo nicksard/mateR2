@@ -15,6 +15,8 @@ run_mcmc_chains(
   n_iter = 2e+05,
   burn_in = 20000,
   thin = 10,
+  trace_thin = NULL,
+  complexity = c("sum", "cyclomatic", "quadratic", "asymmetry"),
   ...
 )
 }
