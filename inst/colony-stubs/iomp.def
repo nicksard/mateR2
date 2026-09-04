@@ -1,0 +1,6 @@
+LIBRARY libiomp5md.dll
+EXPORTS
+    kmpc_begin  @110 NONAME
+    kmpc_end    @120 NONAME
+    kmpc_free   @726 NONAME
+    kmpc_malloc @747 NONAME

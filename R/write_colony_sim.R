@@ -43,6 +43,13 @@
 #'     uses 0. \strong{0 means DOS}, which is \code{gui_mode = FALSE} here.
 #' }
 #'
+#' \strong{Verified against Simu2.exe.} The emitted file has been run through
+#' COLONY's simulation module. On a 6 x 4 matrix in sibship mode the program
+#' reports 40 offspring, 6 dads and 4 mums, writes \code{Colony2.dat} with
+#' \code{0 0} candidate parents, and its own true-configuration block reproduces
+#' the input matrix cell for cell. In parentage mode the candidate lists come
+#' back as the true parents plus the requested unrelated padding.
+#'
 #' @param K Weighted breeding matrix, or anything coercible by
 #'   \code{as.matrix()}. Rows are males, columns are females, cells are
 #'   full-sibling counts. Whole numbers, non-negative. All-zero rows and columns
@@ -112,7 +119,10 @@
 #'   one is drawn from R's generator, so an upstream \code{set.seed()} fixes it.
 #' @param wrap_at Optional integer. Split matrix rows across this many values per
 #'   line. Matrix rows carry no trailing comment, so the format permits the
-#'   split; use it if a very wide matrix trips a record-length limit.
+#'   split. Not normally needed: \code{Simu2.exe} was measured to read a
+#'   6,002-character row from a 4 x 3000 matrix without complaint, and the widest
+#'   row a mateR2 network produces at N_P = 1600 is roughly 1,100 characters.
+#'   Kept as an escape hatch for wider matrices than that.
 #' @param write_key Logical. Also write \code{<path>_id_key.csv} mapping matrix
 #'   position to mateR2 identifier.
 #' @param overwrite Logical. Overwrite \code{path} if it exists.
