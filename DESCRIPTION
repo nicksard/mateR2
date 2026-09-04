@@ -31,7 +31,8 @@ Imports:
     patchwork,
     Rcpp,
     RcppProgress,
-    stats
+    stats,
+    utils
 Suggests: 
     coda,
     igraph,
