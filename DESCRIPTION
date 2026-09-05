@@ -26,7 +26,6 @@ LinkingTo:
     Rcpp,
     RcppProgress
 Imports: 
-    dplyr,
     ggplot2,
     patchwork,
     Rcpp,
