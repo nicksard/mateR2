@@ -38,14 +38,17 @@ generate_map_table(
 
 \item{max_females_per_male}{The maximum number of females a male can mate with.}
 
-\item{decay_constant}{A negative value that penalizes complex mating structures.
-A larger negative value results in a higher penalty.}
+\item{decay_constant}{Non-positive strength of the prior over network
+architectures. Zero removes it; more negative values weight it more heavily
+against the demographic targets. Beyond roughly -0.5 the prior begins to
+override the targets.}
 
-\item{np_weight}{The weight given to the target Number of Parents (Np).}
+\item{np_weight}{Tolerance weight on the Number of Parents (Np) target. Larger
+values accept a narrower band of states around the target.}
 
-\item{sr_weight}{The weight given to the target Sex Ratio (SR).}
+\item{sr_weight}{Tolerance weight on the Sex Ratio (SR) target.}
 
-\item{mm_weight}{The weight given to the target Mean Mates (MM).}
+\item{mm_weight}{Tolerance weight on the Mean Mates (MM) target.}
 
 \item{n_iter}{The total number of iterations for the MCMC sampler.}
 
@@ -88,4 +91,16 @@ simulation. It sets up the initial conditions, runs the core C++ sampler,
 analyzes the output to find the Maximum a Posteriori (MAP) estimate, and
 calculates key statistics for the resulting breeding matrix. Optionally extracts
 a high-fidelity posterior ensemble.
+}
+\details{
+The objective the sampler explores is an approximate Bayesian computation
+acceptance kernel rather than a likelihood in the usual sense (Beaumont et al.
+2002; Marin et al. 2012). The demographic targets act as summary statistics,
+the deviation of a candidate state from each target is measured on a symmetric
+log-ratio scale, and the weights \code{np_weight}, \code{sr_weight} and
+\code{mm_weight} are tolerance parameters: larger weights narrow the region of
+state space that is accepted around the targets. The structural complexity term
+is a prior over network architectures, expressing a preference among the many
+block configurations that satisfy the same targets. See the \dQuote{Choosing a
+Complexity Penalty} vignette for what that prior can and cannot express.
 }

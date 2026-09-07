@@ -11,13 +11,14 @@ simulate_pedigree_ensemble(
   max_fecundity = 100,
   fecundity_type = "uniform",
   juvenile_sample_size = 500,
+  keep_matrices = FALSE,
   include_map = TRUE
 )
 }
 \arguments{
 \item{ensemble}{An object returned by \code{\link{sample_posterior_ensemble}} or \code{\link{generate_map_table}}.}
 
-\item{mixing_I}{Numeric. Curveball rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.}
+\item{mixing_I}{Numeric. Degree-preserving edge-swap rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.}
 
 \item{min_fecundity}{Integer. Minimum offspring allocated per active pair-bond (default: 20).}
 
@@ -25,7 +26,14 @@ simulate_pedigree_ensemble(
 
 \item{fecundity_type}{Character. Fitness distribution type for \code{\link{brd.mat.fitness}} (default: \code{"uniform"}).}
 
-\item{juvenile_sample_size}{Integer. Number of juveniles to sub-sample per pedigree (default: 500).}
+\item{juvenile_sample_size}{Integer number of juveniles to sub-sample per
+pedigree (default 500), or NULL to return the complete cohort without
+sub-sampling.}
+
+\item{keep_matrices}{Logical. Attach the binary matrix M and the weighted
+breeding matrix K to each returned pedigree as attributes \code{"M"} and
+\code{"K"}. Needed by \code{\link{write_colony_sim}}, which exports K.
+Default FALSE.}
 
 \item{include_map}{Logical. Whether to include the MAP pedigree as the first element of the output list (default: \code{TRUE}).}
 }
@@ -34,6 +42,6 @@ A list of ground-truth pedigree data frames with columns \code{c("off", "mom", "
 }
 \description{
 Takes a list of Mate-Pair Summary Table count vectors, expands each into an Individual-by-Individual
-Matrix (IIM), applies Curveball degree-preserving rewiring, populates offspring fecundities,
+Matrix (IIM), applies degree-preserving edge-swap rewiring, populates offspring fecundities,
 and sub-samples juveniles to produce ready-to-use pedigrees.
 }
