@@ -1,0 +1,170 @@
+---
+title: "Choosing Mate Caps"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Choosing Mate Caps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## What the caps actually control
+
+`generate_map_table()` and `run_mcmc_chains()` take two caps,
+`max_males_per_female` and `max_females_per_male`. They look like biological
+constraints, and they are, but they also do something less obvious: together
+they define the entire state space the sampler searches. A block type is a pair
+$(m, f)$ with $m$ up to the first cap and $f$ up to the second, so the number of
+block types is simply their product. Raising a cap does not merely permit denser
+mating groups, it enlarges the space through which a single-step random walk has
+to travel.
+
+That gives the caps a dual role, and the two roles pull in different directions.
+
+## The caps are bounded below by the targets
+
+The caps cannot be set freely. In a block where every male mates with every
+female, each male has $f$ mates and each female has $m$ mates, so the caps must
+be at least the mean mating success the demographic targets imply:
+
+```
+mean mates of a male    =  2 * MM / (SR + 1)
+mean mates of a female  =  2 * MM * SR / (SR + 1)
+```
+
+`check_target_viability()` enforces the related graph-theoretic floor, refusing
+targets where a male would need fewer than one mate. What it does not do is tell
+you how much headroom to leave above the requirement, and that is the choice
+this vignette is about.
+
+It is worth being explicit that a flat cap is *not* a constant amount of
+headroom. A cap of 10 against a requirement of 1.0 mate is ten times the
+requirement; the same cap against a requirement of 5.3 is under twice. A single
+number applied across a demographic grid therefore imposes a quite different
+search problem in every cell.
+
+## Measuring the trade
+
+Define $k$ as the cap expressed as a multiple of the requirement, and sweep it
+across six mating systems spanning the feasible region.
+
+```{r sweep}
+library(mateR2)
+
+NP <- 200; W <- NP / 2      # linear weight rule
+
+probe <- function(SR, MM, k, seed = 1) {
+  req_male   <- 2 * MM / (SR + 1)
+  req_female <- 2 * MM * SR / (SR + 1)
+  cap_f_per_m <- max(1, ceiling(k * req_male))
+  cap_m_per_f <- max(1, ceiling(k * req_female))
+  r <- run_mcmc_chains(
+    Np_target = NP, sr_target = SR, mean_mates_target = MM,
+    max_males_per_female = cap_m_per_f, max_females_per_male = cap_f_per_m,
+    n_chains = 4, n_iter = 1e5, burn_in = 1e4, thin = 100, seed = seed,
+    np_weight = W, sr_weight = W, mm_weight = W, show_progress = FALSE
+  )
+  d <- r$diagnostics
+  data.frame(SR, MM, k,
+    caps       = paste0(cap_m_per_f, "/", cap_f_per_m),
+    block_types = cap_m_per_f * cap_f_per_m,
+    Np_err     = round(d$error_pct[d$parameter == "Np"], 2),
+    MM_err     = round(d$error_pct[d$parameter == "mean_mates"], 2),
+    max_rhat   = round(max(d$rhat), 3),
+    min_ess    = round(min(d$ess)))
+}
+
+sc   <- data.frame(SR = c(1, 1, 1, 2, 2, 4), MM = c(1, 2, 4, 2, 4, 4))
+grid <- expand.grid(k = c(1, 1.5, 2, 4), row = 1:6)
+out  <- do.call(rbind, Map(function(k, i) probe(sc$SR[i], sc$MM[i], k),
+                           grid$k, grid$row))
+out[order(out$SR, out$MM, out$k), ]
+```
+
+Averaged across the six systems:
+
+```{r summary}
+aggregate(cbind(Np_err, MM_err, min_ess, max_rhat) ~ k, out, mean)
+```
+
+Two things to read off this.
+
+**Accuracy improves with headroom, and keeps improving.** Both the parental
+abundance error and the mean mates error fall as $k$ rises, and mean mates is
+much the more sensitive of the two. At $k = 1$ the sampler is confined to a
+space barely large enough to contain a valid answer, and it misses the mating
+system badly in the balanced-sex-ratio cells. There is no accuracy argument for
+a tight cap.
+
+**Mixing does not improve with headroom. It peaks and then falls.** Effective
+sample size rises from $k = 1$ to $k = 2$ and then drops sharply at $k = 4$,
+while the Gelman-Rubin statistic degrades. This is the cost that pays for the
+accuracy gain, and it is the reason the caps cannot simply be set generously and
+forgotten.
+
+## The mixing cost is an iteration budget, not a bad cap
+
+It would be easy to conclude that large caps are harmful. They are not. The
+degradation at $k = 4$ is a consequence of holding the iteration count fixed
+while the state space grows with the product of the caps. Take the worst cell
+above and vary only the run length:
+
+```{r budget}
+budget <- function(n) {
+  r <- run_mcmc_chains(
+    Np_target = 200, sr_target = 2, mean_mates_target = 4,
+    max_males_per_female = 22, max_females_per_male = 11,
+    n_chains = 4, n_iter = n, burn_in = n / 10, thin = 100, seed = 1,
+    np_weight = 100, sr_weight = 100, mm_weight = 100, show_progress = FALSE
+  )
+  d <- r$diagnostics
+  data.frame(n_iter = n, max_rhat = round(max(d$rhat), 3),
+             min_ess = round(min(d$ess)))
+}
+do.call(rbind, lapply(c(1e5, 5e5, 2e6), budget))
+```
+
+The same caps that fail to converge on a short run converge cleanly on a longer
+one. The cap is not the problem; the ratio of iterations to state-space size is.
+So the caps and the run length are a single decision, not two independent ones.
+
+## A degenerate case worth recognising
+
+In the sweep above, the row with `SR = 1, MM = 1, k = 1` gives caps of 1 and 1,
+a state space of a single block type, an $\hat{R}$ of `NaN` and an effective
+sample size of zero. That is not a sampling failure. With only 1:1 blocks
+available there is exactly one configuration satisfying the targets, every chain
+finds it, and the within-chain variance is identically zero, which is what makes
+the diagnostics undefined. The demographic errors on that row are the lowest in
+the table.
+
+This matters for interpreting diagnostics generally. A chain pinned against a
+structural boundary can look unconverged by the usual statistics while having
+found the exact answer. Where $\hat{R}$ is undefined or extreme, check the
+realized demography and the number of distinct states visited before concluding
+the sampler misbehaved.
+
+## Practical guidance
+
+Set the caps as a multiple of the requirement implied by your targets, not as a
+flat number, unless the flat number is genuinely a biological ceiling. A
+multiple of roughly 1.5 to 2 is the efficient choice at a fixed iteration
+budget: it captures nearly all of the accuracy available and sits at or near the
+peak of the mixing curve.
+
+Go higher when the biology demands it, for instance when a species is known to
+form large communal groups that a tighter cap would exclude by construction.
+When you do, raise the iteration count with it. The state space grows with the
+product of the caps, so doubling both quadruples the space, and a run length
+that was ample before will not be.
+
+Report the caps alongside the demographic targets. Two runs with identical
+$N_P$, sex ratio and mean mates but different caps are searching different
+spaces and can produce visibly different block structure.
+
+Finally, always read $\hat{R}$ and effective sample size together with the
+realized demography. The cells where the diagnostics look worst are sometimes
+the cells where the answer is exact.
