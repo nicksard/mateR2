@@ -33,6 +33,11 @@
 #'   the raw MCMC output, and optionally the high-fidelity posterior ensemble.
 #' @import Rcpp
 #' @import RcppProgress
+#' @param complexity Structural complexity metric assigned to each block type,
+#'   one of "sum" (the default, m + f - 2), "cyclomatic" ((m - 1)(f - 1)),
+#'   "quadratic" ((m + f - 2)^2) or "asymmetry" (|m - f|). Only the
+#'   superlinear forms distinguish dense blocks from sparse ones of the same
+#'   size.
 #' @export
 generate_map_table <- function(
     Np_target, sr_target, mean_mates_target,

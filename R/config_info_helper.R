@@ -13,6 +13,11 @@
 #' # Create a config table for a system where a single individual can have up to 3 mates
 #' config_table <- create_config_info(max_males_per_female = 3, max_females_per_male = 3)
 #' print(config_table)
+#' @param complexity Structural complexity metric assigned to each block type,
+#'   one of "sum" (the default, m + f - 2), "cyclomatic" ((m - 1)(f - 1)),
+#'   "quadratic" ((m + f - 2)^2) or "asymmetry" (|m - f|). Only the
+#'   superlinear forms distinguish dense blocks from sparse ones of the same
+#'   size.
 #' @export
 create_config_info <- function(max_males_per_female, max_females_per_male,
                                complexity = c("sum", "cyclomatic", "quadratic", "asymmetry")) {
