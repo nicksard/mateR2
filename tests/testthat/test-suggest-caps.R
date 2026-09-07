@@ -30,7 +30,7 @@ test_that("suggested caps satisfy the feasibility floor", {
     if (MM < (SR + 1) / 2) next
     s <- suggest_mate_caps(400, SR, MM)
     expect_silent(check_target_viability(
-      Np_target = 400, sr_target = SR, mean_mates_target = MM,
+      sr_target = SR, mean_mates_target = MM,
       max_males_per_female = s$max_males_per_female,
       max_females_per_male = s$max_females_per_male))
   }
