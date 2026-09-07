@@ -1,0 +1,174 @@
+---
+title: "Choosing a Complexity Penalty"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Choosing a Complexity Penalty}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## What the penalty is for
+
+Many different mating block configurations satisfy the same macro-demographic
+targets. A population of 400 parents at a sex ratio of 2 with a mean of 2 mates
+can be assembled from many simple pair bonds, from a few dense communal groups,
+or from anything in between. The MCMC sampler has no reason to prefer one over
+another on demographic grounds alone, so `generate_map_table()` adds a
+structural complexity penalty to the objective: a non-positive decay constant
+`decay_constant` (written $\gamma$ below) multiplied by the total complexity of
+the network, where each block type $b$ carries a complexity score $\delta_b$.
+
+The intent is to express a prior over network architectures. Setting
+$\gamma = 0$ removes the penalty entirely and lets the demographic targets alone
+decide.
+
+What the penalty can and cannot express turns out to be constrained by algebra,
+and this vignette works through it, because the choice of metric and decay
+constant is easy to get wrong in a way that is invisible in the demographic
+diagnostics.
+
+## The constraint the penalty operates under
+
+Total parental abundance and total edge count are both pinned by the targets.
+$N_P$ is the target, and the edge count follows from $N_P$ and mean mates. So
+the penalty cannot change how much mating happens. It can only change how that
+fixed amount of mating is distributed across blocks.
+
+That has a consequence for which metrics can do anything at all. Consider the
+default, $\delta_b = m + f - 2$. Summed over the whole network this is
+
+```
+sum over blocks of  c_b (m_b + f_b - 2)  =  N_P  -  2 * (number of blocks)
+```
+
+Since $N_P$ is fixed, minimising this quantity is exactly equivalent to
+*maximising the number of blocks*. The penalty is not expressing a preference
+about density at all. It is expressing a preference for many blocks, which given
+a fixed $N_P$ means many small ones.
+
+The same collapse happens for any $\delta$ linear in $m$ and $f$, and for
+bilinear forms, because $\sum_b c_b m_b f_b$ is the edge count and is also
+fixed. Only superlinear metrics can express anything about density. `mateR2`
+therefore ships four:
+
+| `complexity` | $\delta_b$ | what it can express |
+|---|---|---|
+| `"sum"` | $m + f - 2$ | block count only (the default) |
+| `"asymmetry"` | $\lvert m - f \rvert$ | sex balance within a block |
+| `"cyclomatic"` | $(m-1)(f-1)$ | independent cycles, so communal structure |
+| `"quadratic"` | $(m + f - 2)^2$ | block size, superlinearly |
+
+## Measuring what actually happens
+
+The quantity of interest is the densest block the sampler settles on, measured
+as the number of pairings it contains ($m \times f$), together with the share of
+blocks that are communal in the sense that both sexes mated more than once.
+
+```{r sweep}
+library(mateR2)
+
+probe <- function(gamma, metric, seed = 1) {
+  m <- generate_map_table(
+    Np_target = 200, sr_target = 2, mean_mates_target = 2,
+    max_males_per_female = 10, max_females_per_male = 10,
+    decay_constant = gamma, complexity = metric,
+    np_weight = 200, sr_weight = 200, mm_weight = 200,
+    n_iter = 1e5, burn_in = 1e4, thin = 100,
+    seed = seed, verbose = FALSE, show_progress = FALSE
+  )
+  tb       <- m$map_table[m$map_table$MAP_Count > 0, ]
+  edges    <- tb$Males * tb$Females
+  communal <- tb$Males > 1 & tb$Females > 1
+  data.frame(
+    gamma, metric,
+    densest_block = max(edges),
+    largest_block = max(tb$Males + tb$Females),
+    pc_communal   = round(100 * sum(tb$MAP_Count[communal]) / sum(tb$MAP_Count)),
+    MM_error_pc   = round(100 * abs(m$map_stats$MeanMates - 2) / 2, 1)
+  )
+}
+
+grid <- expand.grid(
+  gamma  = c(0, -0.05, -0.25),
+  metric = c("sum", "asymmetry", "cyclomatic", "quadratic"),
+  stringsAsFactors = FALSE
+)
+res <- do.call(rbind, Map(probe, grid$gamma, grid$metric))
+res[order(res$metric, -res$gamma), ]
+```
+
+Read the `densest_block` column down each metric. For `sum`, `asymmetry` and
+`cyclomatic` it does not move at all as $\gamma$ strengthens. Whatever the
+penalty is doing to the rest of the network, the densest block is untouched.
+
+This is the algebra above showing up in practice. Strengthening the penalty
+makes most blocks simpler, and because the total amount of mating is fixed, the
+multi-mating it displaces has to go somewhere. It concentrates into the few
+blocks that remain, so the network becomes more sharply divided between many
+pair bonds and a few dense clusters rather than uniformly simpler. The
+concentration is easier to see at larger $N_P$: repeating this sweep at 400
+parents drops the communal share from 5% to between 1% and 3% while
+`densest_block` holds at 48 to 50 throughout.
+
+The practical consequence is that a strengthening `sum` penalty should not be
+read as a control on how dense the densest mating group is allowed to be. It
+is not one.
+
+`quadratic` is the exception, and it is the only metric here that penalises
+block size superlinearly. It does reduce the densest block, which is what makes
+it worth having.
+
+## Choosing a decay constant
+
+The usable range of $\gamma$ is narrower than it looks, and it interacts with
+scale.
+
+```{r gamma-range}
+strong <- do.call(rbind, lapply(c(-0.25, -0.5, -1), probe, metric = "quadratic"))
+strong
+```
+
+Beyond a certain strength the penalty stops being a prior over architectures and
+starts overriding the demographic targets. Watch `MM_error_pc`: once it rises,
+the sampler is buying structural simplicity by missing the mating system it was
+asked to produce, which is almost never the trade a user wants.
+
+Where that boundary falls depends on $N_P$. At the 200-parent scale used above,
+`quadratic` at $\gamma = -0.25$ suppresses density while holding mean mates. At
+400 parents the same setting drove the mean-mates error above 20%. Any
+$\gamma$ chosen from a small pilot should be re-checked at the scale you intend
+to run.
+
+For this reason `"sum"` at $\gamma = -0.05$ remains the package default. It is a
+mild preference for simpler blocks that does not perturb the demographic
+targets at any scale tested. It should be understood for what the algebra says
+it is — a preference for more blocks — and not as a control on density.
+
+## Practical guidance
+
+Use $\gamma = 0$ when the demographic targets are the whole specification and
+network architecture is not of interest. The sampler will find whatever
+configuration fits.
+
+Use `"sum"` at a mild $\gamma$ around $-0.05$ when simple pair bonds should be
+the default architecture and occasional dense clusters are acceptable. This is
+the default and suits most single-cohort simulations.
+
+Use `"cyclomatic"` when the biological concern is communal mating specifically
+rather than block size. It scores $(m-1)(f-1)$, which is zero for any block
+where one sex mated once, so it leaves one-to-many fans alone and charges only
+for configurations where both sexes multiply mate.
+
+Use `"quadratic"` when there is a hard biological ceiling on how many
+individuals can plausibly interact in one mating group. Check the mean-mates
+error at your own $N_P$ before committing, because this is the metric most
+likely to start overriding the targets.
+
+Whichever you choose, report both the metric and the decay constant alongside
+the demographic targets. Two runs with identical $N_P$, sex ratio and mean mates
+can have visibly different family structure, and the sibship distributions that
+downstream reconstruction software sees will differ accordingly.
