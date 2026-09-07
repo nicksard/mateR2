@@ -38,6 +38,17 @@ run_mcmc_chains(
 \item{n_iter, burn_in, thin}{MCMC length, burn-in and thinning interval, passed
 to \code{\link{generate_map_table}}.}
 
+\item{trace_thin}{Thinning interval applied only to the returned diagnostic
+traces. Independent of \code{thin}, which governs the posterior sample
+pool; changing it leaves the chain itself bit-identical. Defaults to
+\code{thin}.}
+
+\item{complexity}{Structural complexity metric assigned to each block type,
+one of "sum" (the default, m + f - 2), "cyclomatic" ((m - 1)(f - 1)),
+"quadratic" ((m + f - 2)^2) or "asymmetry" (|m - f|). Only the
+superlinear forms distinguish dense blocks from sparse ones of the same
+size.}
+
 \item{...}{Further arguments passed to \code{\link{generate_map_table}}, such
 as \code{np_weight}, \code{sr_weight}, \code{mm_weight} and \code{decay_constant}.}
 }

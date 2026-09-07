@@ -4,18 +4,53 @@
 \alias{mat2mp_sum_table}
 \title{Convert a Breeding Matrix to a Mate Pair Summary Table}
 \usage{
-mat2mp_sum_table(mat)
+mat2mp_sum_table(mat, drop_unmated = TRUE)
 }
 \arguments{
-\item{mat}{A breeding matrix where rows are males and columns are females.
-The function assumes a structured or block-like matrix.}
+\item{mat}{A binary matrix, rows males and columns females.}
+
+\item{drop_unmated}{Logical. Individuals with no mates form components with no
+edges and are not valid mating blocks. \code{TRUE} (default) removes them
+and reports how many; \code{FALSE} keeps them as 1:0 and 0:1 rows.}
 }
 \value{
-A data frame with three columns: \code{Males}, \code{Females}, and \code{Count},
-summarizing the number of males, females, and the number of mating blocks
-of that type.
+A data frame with columns \code{Males}, \code{Females} and
+\code{Count}, one row per distinct block type. Carries attributes
+\code{n_unmated_males}, \code{n_unmated_females} and \code{complete_blocks},
+the last being \code{FALSE} when any component is not a complete bipartite
+group.
 }
 \description{
-This function takes a breeding matrix and converts it into a summary
-data frame of mate pair counts, similar to the format used by the MCMC sampler.
+Recovers the Mate-Pair Summary Table from a binary bipartite
+mating matrix, inverting \code{\link{mp_table_to_matrix}}. Each mating block
+is a connected component of the bipartite graph, and the table reports how
+many blocks of each \emph{m}:\emph{f} type the matrix contains.
+}
+\details{
+\strong{A block is a connected component, not a degree signature.} Two
+individuals belong to the same mating block when a path of realized pairings
+runs between them. The number of mates an individual has does not identify its
+block: two separate 1:1 pairs and one 2:2 block contain individuals whose
+degrees alone cannot tell them apart, and only the connectivity distinguishes
+them. Components are found with a union-find pass over the edge list, which
+needs no external graph package.
+
+\strong{This inverts Stage 1, not Stage 2.} \code{mp_table_to_matrix()}
+expands a count vector into complete, block-diagonal groups, and this function
+recovers that vector exactly. Once \code{\link{randomize_mating_structure}}
+has rewired the matrix at any mixing intensity above zero, blocks merge and
+the components stop being complete bipartite groups. The table then describes
+the components actually present, which is a real property of the mixed network
+but is not the block vector that generated it. A warning fires when incomplete
+components are found, because the distinction is easy to lose.
+}
+\examples{
+tbl <- data.frame(Males = c(1, 2), Females = c(1, 2), Count = c(2, 1))
+m   <- mp_table_to_matrix(tbl)
+mat2mp_sum_table(m)   # recovers tbl
+
+}
+\seealso{
+\code{\link{mp_table_to_matrix}} for the forward direction,
+\code{\link{count_network_components}} for the component count alone.
 }

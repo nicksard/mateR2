@@ -71,6 +71,12 @@ custom starting state of block counts.}
 and prints the final acceptance rate. Defaults to \code{interactive()}, so
 scripted and parallel runs are silent; a progress bar written from a
 parallel worker is noise in a log and can stall console I/O on Windows.}
+
+\item{complexity}{Structural complexity metric assigned to each block type,
+one of "sum" (the default, m + f - 2), "cyclomatic" ((m - 1)(f - 1)),
+"quadratic" ((m + f - 2)^2) or "asymmetry" (|m - f|). Only the
+superlinear forms distinguish dense blocks from sparse ones of the same
+size.}
 }
 \value{
 A list containing the MAP estimate table, the summary statistics for the MAP estimate,

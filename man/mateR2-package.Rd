@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Nicholas M. Sard \email{nicksard@gmail.com} (\href{https://orcid.org/0000-0001-7695-2946}{ORCID})
 
+Authors:
+\itemize{
+  \item Nicholas M. Sard \email{nicksard@gmail.com} (\href{https://orcid.org/0000-0001-7695-2946}{ORCID})
+}
+
 }
 \keyword{internal}

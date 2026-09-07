@@ -16,6 +16,12 @@ mate with.}
 
 \item{max_females_per_male}{The maximum number of females a single male can
 mate with.}
+
+\item{complexity}{Structural complexity metric assigned to each block type,
+one of "sum" (the default, m + f - 2), "cyclomatic" ((m - 1)(f - 1)),
+"quadratic" ((m + f - 2)^2) or "asymmetry" (|m - f|). Only the
+superlinear forms distinguish dense blocks from sparse ones of the same
+size.}
 }
 \value{
 A data frame with columns: \code{Block} (e.g., "1:1"), \code{Males}, \code{Females},
