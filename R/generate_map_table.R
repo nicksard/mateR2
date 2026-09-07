@@ -4,16 +4,30 @@
 #'   analyzes the output to find the Maximum a Posteriori (MAP) estimate, and
 #'   calculates key statistics for the resulting breeding matrix. Optionally extracts
 #'   a high-fidelity posterior ensemble.
+#' @details
+#' The objective the sampler explores is an approximate Bayesian computation
+#' acceptance kernel rather than a likelihood in the usual sense (Beaumont et al.
+#' 2002; Marin et al. 2012). The demographic targets act as summary statistics,
+#' the deviation of a candidate state from each target is measured on a symmetric
+#' log-ratio scale, and the weights \code{np_weight}, \code{sr_weight} and
+#' \code{mm_weight} are tolerance parameters: larger weights narrow the region of
+#' state space that is accepted around the targets. The structural complexity term
+#' is a prior over network architectures, expressing a preference among the many
+#' block configurations that satisfy the same targets. See the \dQuote{Choosing a
+#' Complexity Penalty} vignette for what that prior can and cannot express.
 #' @param Np_target The target total number of parents (males + females).
 #' @param sr_target The target sex ratio (males / females).
 #' @param mean_mates_target The target mean number of mates per individual.
 #' @param max_males_per_female The maximum number of males a female can mate with.
 #' @param max_females_per_male The maximum number of females a male can mate with.
-#' @param decay_constant A negative value that penalizes complex mating structures.
-#'   A larger negative value results in a higher penalty.
-#' @param np_weight The weight given to the target Number of Parents (Np).
-#' @param sr_weight The weight given to the target Sex Ratio (SR).
-#' @param mm_weight The weight given to the target Mean Mates (MM).
+#' @param decay_constant Non-positive strength of the prior over network
+#'   architectures. Zero removes it; more negative values weight it more heavily
+#'   against the demographic targets. Beyond roughly -0.5 the prior begins to
+#'   override the targets.
+#' @param np_weight Tolerance weight on the Number of Parents (Np) target. Larger
+#'   values accept a narrower band of states around the target.
+#' @param sr_weight Tolerance weight on the Sex Ratio (SR) target.
+#' @param mm_weight Tolerance weight on the Mean Mates (MM) target.
 #' @param n_iter The total number of iterations for the MCMC sampler.
 #' @param burn_in The number of initial iterations to discard before sampling begins.
 #' @param thin The thinning interval for collecting samples from the MCMC chain.

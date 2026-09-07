@@ -176,7 +176,12 @@ List run_mcmc_sampler_cpp(
 
   // --- MCMC Loop ---
   for (int t = 0; t < n_iter; ++t) {
-    if (Progress::check_abort()) {
+    // Only poll for an interrupt when a progress bar is actually displayed.
+    // check_abort() is meaningful for an interactive run; when the sampler is
+    // driven from a script with show_progress = FALSE there is no user to
+    // interrupt it, and some RcppProgress builds report an abort immediately
+    // in that setting, which would kill a batch run with a misleading message.
+    if (show_progress && Progress::check_abort()) {
       stop("MCMC interrupted by user.");
     }
 
