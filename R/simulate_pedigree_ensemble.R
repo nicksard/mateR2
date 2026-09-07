@@ -1,15 +1,21 @@
 #' Simulate Pedigrees Across a Posterior Ensemble of Count Vectors
 #'
 #' Takes a list of Mate-Pair Summary Table count vectors, expands each into an Individual-by-Individual
-#' Matrix (IIM), applies Curveball degree-preserving rewiring, populates offspring fecundities,
+#' Matrix (IIM), applies degree-preserving edge-swap rewiring, populates offspring fecundities,
 #' and sub-samples juveniles to produce ready-to-use pedigrees.
 #'
 #' @param ensemble An object returned by \code{\link{sample_posterior_ensemble}} or \code{\link{generate_map_table}}.
-#' @param mixing_I Numeric. Curveball rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.
+#' @param mixing_I Numeric. Degree-preserving edge-swap rewiring intensity between 0.0 (block-diagonal) and 1.0 (full panmictic mixing). Default is 0.25.
+#' @param keep_matrices Logical. Attach the binary matrix M and the weighted
+#'   breeding matrix K to each returned pedigree as attributes \code{"M"} and
+#'   \code{"K"}. Needed by \code{\link{write_colony_sim}}, which exports K.
+#'   Default FALSE.
 #' @param min_fecundity Integer. Minimum offspring allocated per active pair-bond (default: 20).
 #' @param max_fecundity Integer. Maximum offspring allocated per active pair-bond (default: 100).
 #' @param fecundity_type Character. Fitness distribution type for \code{\link{brd.mat.fitness}} (default: \code{"uniform"}).
-#' @param juvenile_sample_size Integer. Number of juveniles to sub-sample per pedigree (default: 500).
+#' @param juvenile_sample_size Integer number of juveniles to sub-sample per
+#'   pedigree (default 500), or NULL to return the complete cohort without
+#'   sub-sampling.
 #' @param include_map Logical. Whether to include the MAP pedigree as the first element of the output list (default: \code{TRUE}).
 #'
 #' @return A list of ground-truth pedigree data frames with columns \code{c("off", "mom", "dad")}.
@@ -20,6 +26,7 @@ simulate_pedigree_ensemble <- function(ensemble,
                                        max_fecundity = 100,
                                        fecundity_type = "uniform",
                                        juvenile_sample_size = 500,
+                                       keep_matrices = FALSE,
                                        include_map = TRUE) {
 
   # --- 1. Base Grid Extraction ---
@@ -71,7 +78,7 @@ simulate_pedigree_ensemble <- function(ensemble,
     # Stage 1 -> Stage 2 Expansion (Mate-Pair Table to Binary Matrix)
     binary_mat <- mp_table_to_matrix(current_mp_table)
 
-    # Stage 2 Curveball Rewiring (Passing parameter I = mixing_I)
+    # Stage 2 Degree-Preserving Rewiring (Passing parameter I = mixing_I)
     if (mixing_I > 0) {
       mixed_mat <- randomize_mating_structure(binary_mat, I = mixing_I)
     } else {
@@ -86,11 +93,20 @@ simulate_pedigree_ensemble <- function(ensemble,
       type     = fecundity_type
     )
 
-    # Sub-sample Juveniles
-    sampled_df <- mat.sub.sample(fecund_mat, num_offspring = juvenile_sample_size)
+    # Sub-sample juveniles, or take the whole cohort when no sample size is
+    # given. The full cohort is what a COLONY simulation-module export needs,
+    # since the mating matrix there is the realised one, not a sampled one.
+    if (is.null(juvenile_sample_size)) {
+      ped <- mat2ped(fecund_mat)
+    } else {
+      sampled_df <- mat.sub.sample(fecund_mat, num_offspring = juvenile_sample_size)
+      ped <- convert2ped(sampled_df)
+    }
 
-    # Convert to standard Pedigree Data Frame
-    ped <- convert2ped(sampled_df)
+    if (isTRUE(keep_matrices)) {
+      attr(ped, "M") <- mixed_mat
+      attr(ped, "K") <- fecund_mat
+    }
     return(ped)
   })
 

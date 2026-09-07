@@ -1,7 +1,12 @@
 #' @title Randomize a Breeding Matrix via Bipartite Edge-Swapping
 #'
 #' @description Implements a joint-degree-preserving bipartite randomization routine
-#'   (Curveball algorithm) to rewire the connections in a binary breeding matrix.
+#'   to rewire the connections in a binary breeding matrix. The routine is a
+#'   pairwise checkerboard edge swap (Gotelli and Entsminger 2003; Miklos and
+#'   Podani 2004): two edges are drawn and their endpoints exchanged when both
+#'   alternative cells are empty, so exactly four cells change per accepted move.
+#'   It is not the Curveball algorithm of Strona et al. (2014), which operates on
+#'   whole rows and alters a variable number of cells per move.
 #'   This function controls the topological entropy of the network while
 #'   rigorously preserving the exact number of mates for every individual
 #'   (the demographic marginal totals).
@@ -61,7 +66,7 @@ randomize_mating_structure <- function(binary_IIM, I = 1.0) {
   max_attempts <- max(10 * T_swaps, 1)
   attempt_count <- 0
 
-  # --- 3. The Iterative Curveball Loop ---
+  # --- 3. The Iterative Edge-Swap Loop ---
   # If I = 0, this loop is bypassed completely, preserving the initial modular blocks
   if (T_swaps > 0) {
     while (S_success < T_swaps && attempt_count < max_attempts) {
