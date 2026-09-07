@@ -36,12 +36,23 @@ test_that("blocks are counted, not individuals", {
 })
 
 test_that("degree signature alone cannot identify a block", {
-  # Both matrices give every individual exactly one mate, but one is two 1:1
-  # pairs and the other is a single 2:2 block with different connectivity.
-  a <- mp_table_to_matrix(data.frame(Males = 1, Females = 1, Count = 2))
-  b <- matrix(c(1L, 0L, 0L, 1L), 2, 2)[, 2:1]
-  expect_equal(sort(rowSums(a)), sort(rowSums(b)))
-  expect_equal(mat2mp_sum_table(a)$Count, mat2mp_sum_table(b)$Count)
+  # Two 2:2 blocks, and an eight-cycle spanning four males and four females.
+  # Every individual has exactly two mates in both, so the degree multisets are
+  # identical, but the first is two components and the second is one. Only
+  # connectivity tells them apart.
+  a <- mp_table_to_matrix(data.frame(Males = 2, Females = 2, Count = 2))
+  b <- matrix(0L, 4, 4)
+  for (i in 1:4) { b[i, i] <- 1L; b[i, (i %% 4) + 1L] <- 1L }
+
+  expect_equal(sort(unname(rowSums(a))), sort(unname(rowSums(b))))
+  expect_equal(sort(unname(colSums(a))), sort(unname(colSums(b))))
+
+  expect_equal(mat2mp_sum_table(a)[, 1:3],
+               data.frame(Males = 2L, Females = 2L, Count = 2L),
+               ignore_attr = TRUE)
+  expect_equal(suppressWarnings(mat2mp_sum_table(b))[, 1:3],
+               data.frame(Males = 4L, Females = 4L, Count = 1L),
+               ignore_attr = TRUE)
 })
 
 test_that("unmated individuals are reported and excluded", {
