@@ -2,78 +2,54 @@
 % Please edit documentation in R/read_colony_dat.R
 \name{read_colony_dat}
 \alias{read_colony_dat}
-\title{Read a COLONY2 Data File}
+\title{Read Genotypes from a COLONY2 Data File}
 \usage{
-read_colony_dat(path, id_key = NULL)
+read_colony_dat(path)
 }
 \arguments{
 \item{path}{Path to the \code{.DAT} file, for example \code{COLONY2_1.DAT}.}
-
-\item{id_key}{Optional. The identifier key written by
-\code{\link{write_colony_sim}}, either as a path to the CSV or the data
-frame itself. When supplied, mateR2 identifiers are joined onto the truth
-table and the candidate-parent tables.}
 }
 \value{
-A list of class \code{mateR2_colony_dat} with elements:
+A list of class \code{mateR2_colony_dat} with:
 \describe{
-\item{params}{Named list of the run parameters from the file header.}
-\item{markers}{Data frame with one row per locus: \code{marker},
-\code{type}, \code{dropout}, \code{error}.}
+\item{markers}{One row per locus: \code{marker}, \code{type},
+\code{dropout}, \code{error}.}
 \item{offspring}{Offspring genotypes, wide.}
 \item{candidate_males, candidate_females}{Candidate-parent genotypes,
-wide, with a \code{true_parent} flag. Zero rows under sibship-only.}
-\item{truth}{One row per offspring: \code{off}, \code{dad_index},
-\code{mum_index}, \code{sib_index}, plus \code{dad}/\code{mum} mateR2
-identifiers when \code{id_key} is supplied.}
-\item{config}{The file's own True Configuration block.}
+wide. Zero rows under sibship-only.}
 \item{path}{The file read.}
 }
 }
 \description{
 Parses the \code{Colony2.dat} file written by COLONY's
-simulation module (\code{Simu2.exe}) back into R: run parameters, marker
-definitions, offspring and candidate-parent genotypes, and the true pedigree.
-This is the return leg of \code{\link{write_colony_sim}} and closes the
-benchmarking loop, since the recovered truth is what a reconstruction is
-scored against.
+simulation module (\code{Simu2.exe}) into R: the marker definitions and the
+genotypes of the offspring and of any candidate parents. This is the return
+leg of \code{\link{write_colony_sim}}, and its output feeds
+\code{\link{colony_locus_stats}}.
 }
 \details{
-\strong{Where the truth comes from.} The simulation module encodes the true
-pedigree in the offspring identifiers it generates: \code{M6F4C3} is the third
-child of the male in row 6 and the female in column 4 of the mating matrix
-supplied in \code{Input3.Par}. Those indices are parsed into
-\code{dad_index} and \code{mum_index}. Pass the key written by
-\code{write_colony_sim(write_key = TRUE)} as \code{id_key} and the mateR2
-identifiers are joined on, so the truth table reads \code{M001}/\code{F001}
-rather than positions. The file's own \code{True Configuration} block is
-returned separately as \code{config} and is a useful cross-check: it gives
-paternal and maternal family assignments per offspring independently of the
-identifier convention.
+\strong{Genotype layout.} Genotypes are returned wide, one row per
+individual, with the identifier in the first column and two columns per locus
+named \code{Mk1-1}, \code{Mk1-2} and so on, which is the layout COLONY itself
+uses. Missing alleles are left as COLONY's \code{0} rather than converted to
+\code{NA}, so a writer can round-trip them;
+\code{\link{colony_locus_stats}} treats a zero in either position as a
+missing genotype.
 
-\strong{Candidate parents.} COLONY distinguishes the sampled true parents from
-the unrelated padding by case: \code{M1}, \code{M2}, ... are true parents
-carried over from the mating matrix, \code{m7}, \code{m8}, ... are the
-unrelated candidates. That is recorded in the \code{true_parent} column rather
-than left for the caller to infer from capitalisation.
-
-\strong{Genotype layout.} Genotypes are returned wide, one row per individual,
-with the identifier in the first column and two columns per locus named
-\code{Mk1-1}, \code{Mk1-2} and so on, which is the layout COLONY itself uses
-and the layout a \code{.dat} writer expects. Missing alleles are COLONY's
-\code{0}, left as-is rather than converted to \code{NA}, because a
-\code{.dat} writer needs the zeros back.
+\strong{Candidate parents.} COLONY distinguishes sampled true parents from
+unrelated padding by case, writing \code{M1} for the first and \code{m7} for
+the second. Both are returned as given. A sibship-only file has no candidate
+parents and both frames come back with zero rows.
 }
 \examples{
 \dontrun{
-dat <- read_colony_dat("COLONY2_1.DAT", id_key = "Input3_id_key.csv")
+dat <- read_colony_dat("COLONY2_1.DAT")
 head(dat$offspring[, 1:5])
-head(dat$truth)
+colony_locus_stats(dat$offspring, dat$markers)
 }
 
 }
 \seealso{
 \code{\link{write_colony_sim}} for the outward leg,
-\code{\link{colony_truth_matrix}} to rebuild the mating matrix from the
-recovered truth.
+\code{\link{colony_locus_stats}} for per-locus summaries.
 }

@@ -34,13 +34,22 @@ The pipeline runs in three stages:
 
 ## Installation
 
+mateR2 contains C++ code, so installing from source needs a working
+compiler toolchain. On Windows that means **Rtools**, matched to your R
+version: Rtools44 for R 4.4.x, Rtools45 for R 4.5.x. macOS needs the
+Xcode command line tools; most Linux distributions already have what is
+required.
+
 ``` r
-# install.packages("devtools")
-devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
+# install.packages("pak")
+pak::pak("nicksard/mateR2")
+
+# devtools also works, and is the way to force the vignettes to build:
+# devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 ```
 
-Optional extras: `coda` for `run_mcmc_chains()`, `igraph` for
-`count_network_components()`.
+Every package mateR2 needs is installed with it; there are no optional
+extras.
 
 ## A worked example
 

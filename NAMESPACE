@@ -5,6 +5,7 @@ export(brd.mat)
 export(brd.mat.fitness)
 export(calculate_closeness_score)
 export(check_target_viability)
+export(colony_locus_stats)
 export(comating_pair_density)
 export(combine_matrices)
 export(convert2ped)
@@ -42,8 +43,5 @@ importFrom(stats,
   runif,
   xtabs
 )
-importFrom(utils,
-  read.csv,
-  write.csv
-)
+importFrom(utils,write.csv)
 useDynLib(mateR2, .registration = TRUE)
