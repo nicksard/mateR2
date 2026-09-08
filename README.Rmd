@@ -42,6 +42,11 @@ The pipeline runs in three stages:
 
 ## Installation
 
+mateR2 contains C++ code, so installing from source needs a working compiler
+toolchain. On Windows that means **Rtools**, matched to your R version:
+Rtools44 for R 4.4.x, Rtools45 for R 4.5.x. macOS needs the Xcode command line
+tools; most Linux distributions already have what is required.
+
 ```r
 # install.packages("pak")
 pak::pak("nicksard/mateR2")
@@ -50,8 +55,9 @@ pak::pak("nicksard/mateR2")
 # devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 ```
 
-Optional extras: `coda` for `run_mcmc_chains()`, `igraph` for
-`count_network_components()`.
+Every package mateR2 needs is installed with it. hierfstat is suggested rather
+than required: `colony_to_hierfstat()` prepares data for it but never calls it,
+so it is only needed if you go on to compute F-statistics.
 
 ## A worked example
 
