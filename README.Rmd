@@ -55,9 +55,7 @@ pak::pak("nicksard/mateR2")
 # devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 ```
 
-Every package mateR2 needs is installed with it. hierfstat is suggested rather
-than required: `colony_to_hierfstat()` prepares data for it but never calls it,
-so it is only needed if you go on to compute F-statistics.
+Every package mateR2 needs is installed with it; there are no optional extras.
 
 ## A worked example
 
