@@ -43,8 +43,11 @@ The pipeline runs in three stages:
 ## Installation
 
 ```r
-# install.packages("devtools")
-devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
+# install.packages("pak")
+pak::pak("nicksard/mateR2")
+
+# devtools also works, and is the way to force the vignettes to build:
+# devtools::install_github("nicksard/mateR2", build_vignettes = TRUE)
 ```
 
 Optional extras: `coda` for `run_mcmc_chains()`, `igraph` for
