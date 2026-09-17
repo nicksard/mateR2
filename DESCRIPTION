@@ -1,7 +1,7 @@
 Package: mateR2
-Title: Simulate Single-Cohort Pedigrees Using a Constrained Bipartite Sampler
+Title: Simulate Demographically Constrained Mating Networks to Benchmark Pedigree Reconstruction
 Version: 0.1.0
-Date: 2026-08-28
+Date: 2026-09-17
 Authors@R: 
     person("Nicholas M.", "Sard", , "nicksard@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7695-2946"))
