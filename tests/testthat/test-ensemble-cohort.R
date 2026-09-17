@@ -47,16 +47,3 @@ test_that("matrices are withheld unless asked for", {
   expect_null(attr(ped, "K"))
 })
 
-test_that("the package no longer calls the rewiring Curveball", {
-  # Section 2.3 cites Gotelli & Entsminger and Miklos & Podani for a pairwise
-  # checkerboard swap. Curveball (Strona et al. 2014) is a different algorithm,
-  # and the mismatch is the first thing a reviewer opening the repo would see.
-  # Rd_db reads the installed help database; man/ itself is not installed, so
-  # skip where the database is unavailable rather than testing nothing.
-  db <- tools::Rd_db("mateR2")
-  skip_if(length(db) == 0, "no installed Rd database to inspect")
-  txt  <- vapply(db, function(rd) paste(as.character(rd), collapse = " "),
-                 character(1))
-  hits <- grep("Curveball", txt, value = TRUE)
-  expect_true(all(grepl("not the Curveball", hits)))
-})

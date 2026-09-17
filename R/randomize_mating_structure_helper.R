@@ -5,8 +5,6 @@
 #'   pairwise checkerboard edge swap (Gotelli and Entsminger 2003; Miklos and
 #'   Podani 2004): two edges are drawn and their endpoints exchanged when both
 #'   alternative cells are empty, so exactly four cells change per accepted move.
-#'   It is not the Curveball algorithm of Strona et al. (2014), which operates on
-#'   whole rows and alters a variable number of cells per move.
 #'   This function controls the topological entropy of the network while
 #'   rigorously preserving the exact number of mates for every individual
 #'   (the demographic marginal totals).

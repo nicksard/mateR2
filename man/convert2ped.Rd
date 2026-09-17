@@ -16,6 +16,5 @@ and \code{dad} (father ID), with one row for each sampled offspring.
 }
 \description{
 This function takes a data frame of sampled offspring (as output
-by \code{mat.sub.sample()}) and converts it into a long-format pedigree file,
-which is a standard input for genetic and parentage analysis software.
+by \code{mat.sub.sample()}) and converts it into a long-format pedigree file.
 }

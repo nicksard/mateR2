@@ -84,7 +84,7 @@ mat.stats <- function(mat) {
     min.female.mates = min(female_mates),
     max.female.mates = max(female_mates),
 
-    # --- FIXED BIOLOGICAL MATH: Average of Averages ---
+    # Average of Averages
     overall.mean.mates = round((mean_m_mates + mean_f_mates) / 2.0, 2),
 
     # Reproductive Success (RS) metrics. These two are k-bar, per sex.

@@ -26,9 +26,7 @@
 #' is what makes scoring a reconstruction against ground truth possible.
 #'
 #' \strong{Writing.} The whole file is assembled in memory and committed with a
-#' single \code{\link{writeLines}} call on one connection. Building the file in
-#' many appending writes to the same path is what produces the stray blank lines
-#' and truncated records that this format is prone to.
+#' single \code{\link{writeLines}} call on one connection.
 #'
 #' \strong{Two contradictions in the COLONY user guide}, resolved here against
 #' the guide's own worked example, which is self-consistent and matches observed

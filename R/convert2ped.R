@@ -1,7 +1,6 @@
 #' @title Convert Offspring Data Frame to Pedigree Format
 #' @description This function takes a data frame of sampled offspring (as output
-#'   by `mat.sub.sample()`) and converts it into a long-format pedigree file,
-#'   which is a standard input for genetic and parentage analysis software.
+#'   by `mat.sub.sample()`) and converts it into a long-format pedigree file.
 #' @param df A data frame with at least the columns `dads`, `moms`, and `off1`,
 #'   representing father, mother, and the number of sampled offspring per pair.
 #' @return A data frame with three columns: `off` (offspring ID), `mom` (mother ID),
